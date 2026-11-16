@@ -64,6 +64,10 @@ async function openConversation(page: Page): Promise<void> {
 
 async function drawingControl(target: Locator, expectedFace: string, otherFace: string, name: string, codeRole = false) {
   const style = await target.getAttribute('style')
+  const paintedStyle = await target.evaluate((element) => {
+    const { fontFamily, fontFeatureSettings } = getComputedStyle(element)
+    return { fontFamily, fontFeatureSettings }
+  })
   const prefix = codeRole ? await target.evaluate(element => getComputedStyle(element).getPropertyValue('--dsh-font-family-code-latin') + ', ') : ''
   const actual = await target.screenshot()
   try {
@@ -108,7 +112,7 @@ async function drawingControl(target: Locator, expectedFace: string, otherFace: 
     expect.soft(matches.regionalControlsDiffer, 'the two control fonts must draw differently: ' + name).toBe(true)
     expect.soft(matches.matchesExpected, 'actual pixels must equal the installed regional reference: ' + name).toBe(true)
     expect.soft(matches.matchesOther, 'actual pixels must differ from the other region: ' + name).toBe(false)
-    return { name, expectedFace, otherFace, ...matches }
+    return { name, expectedFace, otherFace, paintedStyle, ...matches }
   } finally {
     await target.evaluate((element, previous) => {
       if (previous === null) element.removeAttribute('style')
@@ -172,6 +176,7 @@ for (const name of selected) {
     await scaffold.ctx.settings.update('locale', { preference: 'zh' })
     await page.waitForFunction(() => document.documentElement.lang === 'zh-CN')
     expect(await targets[1]!.getAttribute('data-dsh-cjk')).toBe('ja')
+    comparisons.push(await drawingControl(targets[0]!, japanese, chinese, name + '-chinese-ui-japanese-heading'))
     comparisons.push(await drawingControl(targets[1]!, japanese, chinese, name + '-chinese-ui-japanese-prose'))
     const interfaceFonts = await page.locator('body').evaluate(element => getComputedStyle(element).getPropertyValue('--dsh-font-family-text-resolved'))
     expect(interfaceFonts).toContain('Microsoft YaHei')
@@ -183,6 +188,7 @@ for (const name of selected) {
     expect(await page.locator('body').evaluate(element => getComputedStyle(element).getPropertyValue('--dsh-font-family-text-resolved'))).toContain('Microsoft YaHei')
     expect(await targets[3]!.evaluate(element => getComputedStyle(element).fontFamily)).toContain('Yu Gothic UI')
     comparisons.push(await drawingControl(unmarked, japanese, chinese, name + '-manual-pure-han'))
+    comparisons.push(await drawingControl(targets[3]!, japanese, chinese, name + '-manual-code', true))
     await unmarked.evaluate((element) => { element.setAttribute('lang', 'zh-Hans') })
     try {
       comparisons.push(await drawingControl(unmarked, chinese, japanese, name + '-explicit-hans-with-manual-ja'))

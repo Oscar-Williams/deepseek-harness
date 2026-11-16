@@ -29,20 +29,18 @@ body {
   font-family: var(--dsw-font-family);
 }
 
-/* A regional face can still localize its glyphs to the document language.
- * Keep the selected face's default forms for an inferred or manual region. */
-:where(
-  [data-dsh-content] [data-dsh-cjk='ja']:not(:lang(ja)),
-  body[data-dsh-cjk-glyph-region]:not([data-dsh-cjk-glyph-region='auto']) [data-dsh-content]
-) {
-  font-feature-settings: 'locl' off;
+/* Regional faces can still localize their glyphs to the document language.
+ * Apply the override at the drawing elements, where font shorthands reset it. */
+body[data-dsh-cjk-glyph-region]:not([data-dsh-cjk-glyph-region='auto']) :is([data-dsh-content], [data-dsh-content] *),
+[data-dsh-content] :is([data-dsh-cjk='ja'], [data-dsh-cjk='ja'] *):not(:lang(ja)) {
+  font-feature-settings: var(--dsh-content-font-features, 'locl' off);
 }
 
 :where([data-dsh-content][lang], [data-dsh-content] [lang]) {
   --dsw-font-family: var(--dsh-font-family-text, var(--dsh-font-family-content-resolved)), var(--dsh-font-family-content-resolved);
   --ds-font-family-code: var(--dsh-font-family-code, var(--dsh-font-family-code-resolved)), var(--dsh-font-family-code-resolved);
   font-family: var(--dsw-font-family);
-  font-feature-settings: normal;
+  --dsh-content-font-features: normal;
 }
 
 /* Content-owned language tags take precedence over the document defaults. */
