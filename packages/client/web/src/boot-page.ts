@@ -6,6 +6,11 @@
 import type { LoaderEntryState } from './loader-status.ts'
 import css from './boot-page.module.css'
 
+const BOOT_COPY = {
+  en: { loading: 'Loading plugins…', failed: 'Failed to load plugins' },
+  ja: { loading: 'プラグインを読み込んでいます…', failed: 'プラグインを読み込めませんでした' },
+} as const
+
 /** Create a div with one module class and optional text. */
 function div(className: string | undefined, text?: string): HTMLDivElement {
   const el = document.createElement('div')
@@ -23,6 +28,7 @@ export class BootPage {
   private readonly hint: HTMLDivElement
   private readonly states = new Map<string, LoaderEntryState>()
   private readonly active = new Set<string>()
+  private language: keyof typeof BOOT_COPY = 'en'
   private total = 0
   private failure: string | undefined
 
@@ -37,10 +43,27 @@ export class BootPage {
     this.wordmark = div(css.wordmark, 'HARNESS')
     this.spinner = div(css.spinner)
     this.spinner.dataset.dshBootSpinner = ''
-    this.hint = div(css.hint, 'Loading plugins…')
+    this.hint = div(css.hint)
     this.card.append(this.wordmark, this.spinner, this.hint)
     this.root.append(this.card)
     container.append(this.root)
+    const view = container.ownerDocument.defaultView as (Window & {
+      __DSH_LOCALE__?: { read(): Promise<unknown> }
+    }) | null
+    const browserLanguage = view?.navigator.language ?? 'en'
+    this.setLanguage(browserLanguage)
+    // The boot page precedes the locale plugin, so validate its native IPC reply here.
+    void view?.__DSH_LOCALE__?.read().then((value) => {
+      if (typeof value !== 'object' || value === null
+        || !('preference' in value) || (value.preference !== null && typeof value.preference !== 'string')
+        || !('languages' in value) || !Array.isArray(value.languages)
+        || !value.languages.every((language: unknown) => typeof language === 'string')) {
+        throw new TypeError('web boot: invalid native language initialization')
+      }
+      this.setLanguage(value.preference ?? value.languages[0] ?? browserLanguage)
+    }).catch((error: unknown) => {
+      console.warn('web boot: using browser language after native initialization failed', error)
+    })
     this.updateProgress()
   }
 
@@ -79,6 +102,13 @@ export class BootPage {
     this.root.remove()
   }
 
+  private setLanguage(tag: string): void {
+    this.language = /^ja(?:-|$)/i.test(tag) ? 'ja' : 'en'
+    this.root.lang = this.language
+    this.hint.textContent = BOOT_COPY[this.language].loading
+    this.render()
+  }
+
   /** Redraw the state-dependent content below the wordmark. */
   private render(): void {
     const failed = [...this.states].filter(([, state]) => state === 'failed').map(([id]) => id)
@@ -89,7 +119,7 @@ export class BootPage {
       return
     }
     const report = div(css.failed)
-    report.append(div(css.failedTitle, 'Failed to load plugins'))
+    report.append(div(css.failedTitle, BOOT_COPY[this.language].failed))
     for (const id of failed) report.append(div(css.failedItem, id))
     if (this.failure !== undefined) report.append(div(css.failedItem, this.failure))
     this.card.replaceChildren(this.wordmark, report)

@@ -13,6 +13,12 @@
   background: var(--dsw-alias-bg-base, var(--dsh-boot-bg, Canvas));
 }
 
+.boot:lang(ja) {
+  --dsh-boot-font-ja: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', 'Yu Gothic',
+    'Meiryo UI', Meiryo, 'Noto Sans JP', 'Noto Sans CJK JP';
+  font-family: var(--dsw-font-family, var(--dsh-boot-font-ja), system-ui, sans-serif);
+}
+
 :global(body[data-ds-dark-theme]) .boot {
   --dsh-boot-label-primary: #f9fafb;
   --dsh-boot-label-secondary: #cfd3d6;
@@ -101,4 +107,9 @@
   line-height: 18px;
   color: var(--dsw-alias-label-secondary, var(--dsh-boot-label-secondary));
   white-space: pre-wrap;
+}
+
+.boot:lang(ja) .failedItem {
+  font-family: var(--ds-font-family-code, 'SF Mono', 'JetBrains Mono', 'Fira Code', Consolas,
+    'Liberation Mono', Menlo, Courier, var(--dsh-boot-font-ja), monospace);
 }

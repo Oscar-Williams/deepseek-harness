@@ -1,0 +1,25 @@
+- banner:
+  - navigation "セッション階層": Use the read tool twice
+  - button "その他の操作"
+  - button "右サイドバーを開く"
+  - tablist:
+    - tab "チャット" [selected]
+    - tab "軌跡"
+  - button "その他の会話ビュー"
+- text: "Use the read tool twice in one assistant message: read a.txt and b.txt. Then reply with the single word DONE and stop. {{clock}}"
+- button "コピー"
+- status: 完了
+- button "完了まで {{duration}}"
+- paragraph: DONE
+- button "コピー"
+- button "良い回答"
+- button "悪い回答"
+- button "新しい会話に分岐"
+- text: {{clock}}
+- textbox "メッセージやタスクを入力。/ でコマンド、@ でファイルやセッションを参照"
+- button "ファイルを追加するか、コマンドを実行"
+- 'button "アクセスモード、現在: ワークスペース書き込み"': ワークスペース書き込み
+- button "モデルを選択、現在 DeepSeek-V4-Flash": DeepSeek-V4-Flash
+- button "メッセージを送信" [disabled]
+- button "1ターン 2ステップ · {{throughput}} tok/s": 1ターン 2ステップ{{throughput}} tok/s
+- button "16K tok · キャッシュヒット 98%": 16K tokキャッシュヒット 98%

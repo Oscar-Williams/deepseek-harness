@@ -4,7 +4,7 @@
     "INSTALLER_UPDATE_WAIT": "アップデートをインストールしています。完了するとアプリが自動的に再起動します。",
     "INSTALLER_INSTALL": "今すぐインストール",
     "INSTALLER_FINISH": "完了",
-    "INSTALLER_NATIVE_PROGRESS": "インストールを準備しています… %d%%",
+    "INSTALLER_NATIVE_PROGRESS": "インストールの準備中… %d%%",
     "INSTALLER_PROGRESS_EXTRACT": "ファイルを展開しています… %d%%",
     "INSTALLER_PROGRESS_COPY": "ファイルをインストールしています… %d%%",
     "INSTALLER_PROGRESS_REGISTER": "インストールを完了しています… %d%%",
