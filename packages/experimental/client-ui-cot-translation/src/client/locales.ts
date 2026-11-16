@@ -74,7 +74,7 @@ export const ja = {
   'invalidProvider': '翻訳サービスを選択してください。',
   'invalidLanguage': 'auto または zh、en、ja などの言語コードを入力してください。',
   'overridden': '上書き済み',
-  'reset': 'デフォルトに戻す',
+  'reset': '初期設定に戻す',
   'unavailable': '翻訳設定を利用できません。',
   'readOnly': 'このデプロイでは設定は読み取り専用で保存されます。',
   'saveFailed': 'このデプロイでは値が受け入れられませんでした。修正のために値はそのまま残されています。',

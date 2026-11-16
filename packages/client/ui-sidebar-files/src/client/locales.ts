@@ -161,7 +161,7 @@ export const ja = {
   'error.unavailable': '読み取りに失敗しました: {message}',
   'search.placeholder': 'ファイルを検索',
   'search.settings': '検索設定',
-  'search.clear': '検索をクリア',
+  'search.clear': '検索条件を消去',
   'search.showHidden': '隠し項目を表示',
   'search.results': '結果: {count} 件',
   'search.empty': '一致する項目はありません',

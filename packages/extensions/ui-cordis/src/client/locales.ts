@@ -164,7 +164,7 @@ export const ja = {
   'action.retry': '再試行',
   'action.rollback': 'ロールバック',
   'action.inspect': '検査',
-  'render.failedAbdicated': '{slot} でのレンダリングに失敗しました。デフォルト UI を復元しました:',
+  'render.failedAbdicated': '{slot} を表示できなかったため、標準の画面に戻しました:',
   'render.failedHeld': '{slot} でのレンダリングに失敗しました:',
   'a11y.defining': 'プラグインを定義中',
   'a11y.failed': '定義に失敗しました',

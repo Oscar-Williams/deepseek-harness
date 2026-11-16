@@ -195,7 +195,7 @@ export const ja = {
   'general.currentVersion': '現在のバージョン: {version}',
   'developerTools.title': 'コーディングビューを表示',
   'developerTools.error': '保存できませんでした。再試行してください。',
-  'developerTools.description': '軌跡、コード差分、すべてのエージェントプリセットを表示します',
+  'developerTools.description': '実行履歴、コード差分、すべてのエージェントプリセットを表示します',
   'connection.error': '切断済み',
   'connection.connecting': '再接続中',
   'connection.connected': '接続済み',

@@ -86,7 +86,7 @@ export const accessEn = {
 /** Japanese copy, checked against the English keys. */
 export const ja = {
   'title': '権限',
-  'description': '新しいセッションのデフォルトの権限モードを選択',
+  'description': '新しいセッションで使う既定の権限モードを選択',
   'loading': '読み込み中',
   'unavailable': '利用不可',
   'preset.readOnly': '読み取り専用',

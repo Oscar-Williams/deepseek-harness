@@ -224,7 +224,7 @@ export const ja = {
   'filterCount': 'ラベル · {count}',
   'sortBy': '並び替え: {sort}',
   'sortRelevance': '一致度順',
-  'sortDefault': 'デフォルト順',
+  'sortDefault': '標準の並び順',
   'sortPublished': '公開日',
   'switchToAscending': '昇順で並び替え',
   'switchToDescending': '降順で並び替え',

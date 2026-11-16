@@ -111,12 +111,12 @@ export function formLabels(t: (key: SubagentSettingsLocaleKey) => string): Setti
 /** Japanese copy, checked against the English keys. */
 export const ja = {
   'overridden': '上書き済み',
-  'reset': 'デフォルトに戻す',
-  'readOnly': 'このデプロイメントでは設定は読み取り専用で保存されます。',
+  'reset': '既定値に戻す',
+  'readOnly': 'この環境では設定は読み取り専用です。',
   'unavailable': 'このプラグインは読み込まれていないため、現在は設定できません。',
   'save': '保存',
   'saving': '保存中…',
-  'saveFailed': 'デプロイメントがこれらの値を受け付けませんでした。修正のため残されています。',
+  'saveFailed': '設定を保存できませんでした。入力内容は保持されています。値を修正して、もう一度保存してください。',
   'subagentTitle': 'サブエージェント',
   'subagentDescription': 'サブエージェントの再帰深度、数、モデルを設定します。',
   'subagentLimitsTitle': '制限',
@@ -144,7 +144,7 @@ export const ja = {
   'subagentModelSelectionEmpty': '現在、モデルを公開しているモデルプロバイダーはありません。',
   'subagentModelSelectionRequired': '保存する前に少なくとも1つのモデルを選択してください。',
   'subagentModelSelectionConflict': '設定が別の場所で変更されました。下書きを破棄して再試行してください。',
-  'subagentModelSelectionOff': 'サブエージェントは設定済みのデフォルトを使用するか、親エージェントのモデルを継承します。保存済みのモデル選択は保持されます。',
+  'subagentModelSelectionOff': 'サブエージェントは設定済みの既定のモデルを使用するか、親エージェントのモデルを継承します。保存済みのモデル選択は保持されます。',
 } satisfies Record<keyof typeof en, string>
 
 /** Spanish dictionary, checked against the English keys. */

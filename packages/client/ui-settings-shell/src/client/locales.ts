@@ -63,13 +63,13 @@ export const ja = {
   'maxOutputBytes': 'ストリームごとの出力上限 (バイト)',
   'maxOutputBytesHint': 'この上限を超えた出力は失われず、一時ファイルに書き出されます。',
   'overridden': '上書き済み',
-  'reset': 'デフォルトに戻す',
-  'readOnly': 'このデプロイでは設定が読み取り専用で保存されます。',
+  'reset': '既定値に戻す',
+  'readOnly': 'この環境では設定は読み取り専用です。',
   'unavailable': 'このプラグインは読み込まれていないため、現在設定できません。',
   'save': '保存',
   'saving': '保存中…',
-  'saveFailed': 'デプロイがこれらの値を受け付けませんでした。修正のため残されています。',
-  'invalidNumber': '数値を入力するか、空欄のままにするとデフォルトが使用されます。',
+  'saveFailed': '設定を保存できませんでした。入力内容は保持されています。値を修正して、もう一度保存してください。',
+  'invalidNumber': '数値を入力してください。空欄の場合は既定値を使います。',
 } satisfies Record<keyof typeof en, string>
 
 /** Spanish dictionary, checked against the English keys. */

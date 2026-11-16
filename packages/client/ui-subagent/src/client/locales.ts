@@ -126,7 +126,7 @@ export const ja = {
   'duration.years': '約{years}年',
   'duration.yearsMonths': '約{years}年{months}ヶ月',
   'duration.exactDays': '{days}日{hours}時間{minutes}分{seconds}秒',
-  'duration.exactTitle': '合計アクティブ時間: {duration}',
+  'duration.exactTitle': '合計稼働時間: {duration}',
   'tokens.thousand': '{value}K',
   'tokens.million': '{value}M',
   'tokens.total': '{value} tok',

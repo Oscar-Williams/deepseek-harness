@@ -4,7 +4,7 @@
   - button "右サイドバーを開く"
   - tablist:
     - tab "チャット" [selected]
-    - tab "軌跡"
+    - tab "実行履歴"
   - button "その他の会話ビュー"
 - text: "Use the read tool twice in one assistant message: read a.txt and b.txt. Then reply with the single word DONE and stop. {{clock}}"
 - button "コピー"

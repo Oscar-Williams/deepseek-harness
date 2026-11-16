@@ -127,7 +127,7 @@ export const ja = {
 
   ...PRODUCT_NAMES,
   'open.title': '{app}で開く',
-  'path.appDefault': '{app}（デフォルト）',
+  'path.appDefault': '{app}（既定）',
   'path.appsError': 'アプリケーションを読み込めませんでした',
   'shortcut.busy': 'ワークスペースを開いています',
   'shortcut.unavailable': '現在のワークスペースまたはローカルアプリケーションを利用できません',

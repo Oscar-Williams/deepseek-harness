@@ -147,7 +147,7 @@ export const ja = {
   'filter.loading': '候補を検索中…',
   'filter.failed': '種類の候補を読み込めませんでした。',
   'filter.noCandidates': '候補はありません。このキーワードはそのまま適用できます。',
-  'filter.clear': 'クリア',
+  'filter.clear': '入力を消去',
   'filter.cancel': 'キャンセル',
   'filter.apply': 'フィルターを適用',
   'filter.context': '一致したレコードの親コンテキスト',

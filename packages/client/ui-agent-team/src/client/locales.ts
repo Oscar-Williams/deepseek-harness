@@ -78,7 +78,7 @@ export const en = {
 export const ja = {
   'progress.completed': '{count}件完了',
   'progress.active': '{count}件進行中',
-  'progress.pending': '{count}件保留中',
+  'progress.pending': '{count}件未着手',
   'command.title': 'エージェント連携',
   'command.running': '実行中',
   'command.done': '完了',
@@ -100,10 +100,10 @@ export const ja = {
   'failure': '保存されたタスクレコードが無効です: {message}',
   'empty': '共有タスクはまだありません。会話から作成してください。',
   'tasks': '共有タスク',
-  'owner': 'オーナー',
-  'unowned': 'オーナーなし',
+  'owner': '担当',
+  'unowned': '担当なし',
   'blocked': '依存関係によりブロック中',
-  'status.pending': '保留中',
+  'status.pending': '未着手',
   'status.in_progress': '進行中',
   'status.completed': '完了',
 } satisfies Record<keyof typeof en, string>

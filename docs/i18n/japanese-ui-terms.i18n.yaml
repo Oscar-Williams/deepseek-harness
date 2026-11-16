@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for japanese-ui-terms.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/i18n/japanese-ui-terms.md
+/:
+  en: a318ba744e1cb309
+  zh: 25fafbfd864c5cb4
+/japanese-ui-terminology:
+  en: 191227e458d3a2c0
+  zh: 427f336c29664b9b
+/japanese-ui-terminology/reviewed-terms:
+  en: 4723426d48f02404
+  zh: be1ee0cf1dd35fd7
+/japanese-ui-terminology/developer-vocabulary:
+  en: b4ad692e47519e57
+  zh: 9bb30ccd4ab9ad11
+/japanese-ui-terminology/enforcement-and-review:
+  en: 1b5c77ae79524b6b
+  zh: fecbef9cf95ba024
