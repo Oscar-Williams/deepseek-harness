@@ -1,0 +1,20 @@
+# Local reports and working files
+*.pdf
+*.tex
+*.aux
+*.log
+*.toc
+*.out
+*.xdv
+*.synctex.gz
+*.patch
+*.diff
+private-message*.md
+node_modules/
+.cache/
+cache/
+tmp/
+dist/
+lib/
+/evidence/*.json
+/evidence/*.txt
