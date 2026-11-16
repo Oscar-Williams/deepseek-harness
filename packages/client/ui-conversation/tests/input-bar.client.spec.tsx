@@ -326,6 +326,13 @@ function writeDraft(shell: SessionInputShell, text: string): void {
   act(() => { shell.setDraft(text) })
 }
 
+it('protects the whole composer without excluding the page from translation', () => {
+  const { view, textarea } = bench()
+  const guard = textarea.closest('[translate="no"].notranslate')
+  expect(guard?.contains(view.container.querySelector('[data-composer-card]'))).toBe(true)
+  expect(document.documentElement.hasAttribute('translate')).toBe(false)
+})
+
 describe('composer focus handoff', () => {
   it.each(['hero', 'composer'] as const)('focuses the %s editor when its card background is pressed', (variant) => {
     const { view, shell, textarea } = bench({ variant })

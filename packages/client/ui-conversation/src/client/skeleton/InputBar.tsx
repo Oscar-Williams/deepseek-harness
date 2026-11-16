@@ -435,7 +435,7 @@ export const InputBar = memo(function InputBar({
       : planActive ? t('placeholder.plan') : t('placeholder.default'))
 
   return (
-    <div className={clsx(css.root, variant === 'hero' && css.hero)}>
+    <div className={clsx(css.root, 'notranslate', variant === 'hero' && css.hero)} translate="no">
       {toast !== null && (
         <Toast
           key={toast.seq}
