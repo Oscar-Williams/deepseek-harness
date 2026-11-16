@@ -17,7 +17,8 @@ it('reads a recorded conversation and shows Japanese composer guidance', async (
   onTestFinished(() => scaffold.close())
   // Cold history rendering reuses the recording on every OS without executing its shell calls.
   await seedSession(scaffold, await readFile(fixture, 'utf8'), 'japanese-fonts', undefined, { createdAt: WEB_FIXTURE_TIME })
-  const browser = await chromium.launch()
+  const channel = process.env.DSH_FONT_CHROMIUM_CHANNEL
+  const browser = await chromium.launch(channel === undefined ? {} : { channel })
   onTestFinished(() => browser.close())
   const page = await browser.newPage({
     locale: 'ja-JP', viewport: { width: 1440, height: 960 }, timezoneId: 'Asia/Shanghai',
