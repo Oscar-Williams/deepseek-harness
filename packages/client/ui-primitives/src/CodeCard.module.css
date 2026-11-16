@@ -5,6 +5,7 @@
   background: var(--dsw-alias-markdown-code-block);
   border-radius: var(--dsw-radius-lg);
   font: var(--dsw-font-markdown-code-block);
+  font-family: var(--ds-font-family-code);
 }
 
 .header {
@@ -81,5 +82,6 @@
 .body {
   padding: 6px 22px 20px;
   font: var(--dsw-font-markdown-code-block);
+  font-family: var(--ds-font-family-code);
   overflow-x: auto;
 }

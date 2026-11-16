@@ -35,6 +35,7 @@ import { ImageLightbox } from '../ImageLightbox.tsx'
 import { ImagePreview } from '../ImagePreview.tsx'
 import type { PositionedBlock } from './incremental.ts'
 import css from './MarkdownText.module.css'
+import { explicitContentLanguage, permitsJapaneseInference, proseAttributes } from './prose-language.ts'
 
 /** Copy-button labels forwarded to fence CodeBlocks (this package is cordis-free, so copy arrives via props). */
 export interface MarkdownCodeLabels {
@@ -223,6 +224,10 @@ export interface MarkdownFileMentions {
  * numbering accumulated in document order while references render.
  */
 export interface MarkdownRenderContext {
+  /** Language owned by this content subtree; shell language is a default only. */
+  readonly contentLanguage?: string | undefined
+  /** A content ancestor explicitly declares a non-Japanese language. */
+  readonly inferenceBlocked?: boolean | undefined
   /** Streaming arm: fences highlight incrementally as they grow; TeX (including ```math fences) stays literal until the settled pass. */
   readonly streaming: boolean
   /** Localized fence copy-button labels. */
@@ -296,7 +301,10 @@ function renderBlockEntries(
   const entries: BlockEntry[] = []
   for (const [index, block] of blocks.entries()) {
     if (block.type === 'paragraph') {
-      entries.push({ paragraph: renderChildren(block.children, context) })
+      const childContext = languageContext(block, context)
+      const attributes = proseAttributes(block, childContext.contentLanguage, childContext.inferenceBlocked === true)
+      const children = renderChildren(block.children, childContext)
+      entries.push({ paragraph: Object.keys(attributes).length === 0 ? children : [<span key="prose" {...attributes}>{children}</span>] })
     } else {
       const element = renderNode(block, index, context)
       if (element !== null) entries.push({ element })
@@ -312,17 +320,29 @@ function renderChildren(
   return nodes.map((node, index) => renderNode(node, index, context))
 }
 
-function renderNode(node: Md.RootContent, key: Key, context: MarkdownRenderContext): ReactNode {
+function languageContext(node: Md.Nodes, context: MarkdownRenderContext): MarkdownRenderContext {
+  const language = explicitContentLanguage(node)
+  return language === undefined ? context : {
+    ...context, contentLanguage: language,
+    inferenceBlocked: context.inferenceBlocked === true || !permitsJapaneseInference(language),
+  }
+}
+
+function renderNode(node: Md.RootContent, key: Key, inherited: MarkdownRenderContext): ReactNode {
+  const context = languageContext(node, inherited)
+  const language = explicitContentLanguage(node)
   switch (node.type) {
     case 'text':
       return node.value
-    case 'paragraph':
-      return <p key={key}>{renderChildren(node.children, context)}</p>
+    case 'paragraph': {
+      const attributes = proseAttributes(node, context.contentLanguage, context.inferenceBlocked === true)
+      return <p key={key} {...attributes}>{renderChildren(node.children, context)}</p>
+    }
     case 'heading':
-      return createElement(`h${node.depth}`, { key }, ...renderChildren(node.children, context))
+      return createElement(`h${node.depth}`, { key, ...proseAttributes(node, context.contentLanguage, context.inferenceBlocked === true) }, ...renderChildren(node.children, context))
     case 'blockquote':
       return (
-        <blockquote key={key}>
+        <blockquote key={key} lang={language}>
           {wrapBlockChildren(
             renderChildren(node.children, { ...context, inBlockquote: true }).filter(child => child !== null),
             true,
@@ -335,11 +355,11 @@ function renderNode(node: Md.RootContent, key: Key, context: MarkdownRenderConte
       // The replaced pipeline emitted a newline text node after each <br>.
       return <Fragment key={key}><br />{'\n'}</Fragment>
     case 'strong':
-      return <strong key={key}>{renderChildren(node.children, context)}</strong>
+      return <strong key={key} lang={language}>{renderChildren(node.children, context)}</strong>
     case 'emphasis':
-      return <em key={key}>{renderChildren(node.children, context)}</em>
+      return <em key={key} lang={language}>{renderChildren(node.children, context)}</em>
     case 'delete':
-      return <del key={key}>{renderChildren(node.children, context)}</del>
+      return <del key={key} lang={language}>{renderChildren(node.children, context)}</del>
     case 'inlineCode': {
       // Parity with mdast-util-to-hast: inline code renders line endings as spaces.
       const value = node.value.replace(/\r?\n|\r/g, ' ')
@@ -349,14 +369,14 @@ function renderNode(node: Md.RootContent, key: Key, context: MarkdownRenderConte
       // authored text, not a parsed destination, so no normalizeUri: port,
       // path, and query render unchanged.
       const href = inlineCodeHttpUrl(value)
-      if (href !== undefined) return <code key={key}>{renderSafeLink(href, [value], 'link')}</code>
+      if (href !== undefined) return <code key={key} lang={language}>{renderSafeLink(href, [value], 'link')}</code>
       // A token the owner's file-mention vocabulary recognizes opens that
       // file; the resolver, not this renderer, decides what names a file.
       // Inside an anchor the token stays inert — a button cannot nest there.
       const mention = context.inLink === true ? undefined : context.fileMentions?.resolve(value)
       if (mention !== undefined) {
         return (
-          <code key={key}>
+          <code key={key} lang={language}>
             <button
               type="button"
               className={css.fileMention}
@@ -371,13 +391,15 @@ function renderNode(node: Md.RootContent, key: Key, context: MarkdownRenderConte
           </code>
         )
       }
-      return <code key={key}>{value}</code>
+      return <code key={key} lang={language}>{value}</code>
     }
     case 'html':
       // No HTML parser enters the pipeline: raw HTML is literal text, or nothing where the owner omits it.
       return context.omitHtml ? null : node.value
-    case 'code':
-      return renderCode(node, key, context)
+    case 'code': {
+      const rendered = renderCode(node, key, context)
+      return language === undefined ? rendered : <div key={key} lang={language}>{rendered}</div>
+    }
     case 'math':
       return <Fragment key={key}>{renderTexToReact(node.value, true)}</Fragment>
     case 'inlineMath':
@@ -483,7 +505,7 @@ function renderList(node: Md.List, key: Key, context: MarkdownRenderContext): Re
   }
   return createElement(
     node.ordered === true ? 'ol' : 'ul',
-    { key, ...properties },
+    { key, ...properties, lang: explicitContentLanguage(node) },
     ...node.children.map((item, index) => renderListItem(item, loose, index, context)),
   )
 }
@@ -492,8 +514,9 @@ function renderListItem(
   item: Md.ListItem,
   loose: boolean,
   key: Key,
-  context: MarkdownRenderContext,
+  inherited: MarkdownRenderContext,
 ): ReactNode {
+  const context = languageContext(item, inherited)
   const entries = renderBlockEntries(item.children, context)
   const task = typeof item.checked === 'boolean'
   if (task) {
@@ -520,7 +543,7 @@ function renderListItem(
   const tail = entries[entries.length - 1]
   if (tail !== undefined && (loose || !('paragraph' in tail))) parts.push('\n')
   return (
-    <li key={key} className={task ? 'task-list-item' : undefined}>
+    <li key={key} lang={explicitContentLanguage(item)} className={task ? 'task-list-item' : undefined}>
       {parts}
     </li>
   )
@@ -571,13 +594,15 @@ function renderTableRow(
   const cells: ReactNode[] = []
   for (let index = 0; index < length; index++) {
     const cell = row.children[index]
+    const cellContext = cell === undefined ? context : languageContext(cell, context)
     const alignValue = align?.[index]
     cells.push(createElement(
       cellTag,
       // hast-util-to-jsx-runtime's default tableCellAlignToStyle turned the
       // deprecated align attribute into an inline style; keep that DOM.
-      { key: index, style: alignValue == null ? undefined : { textAlign: alignValue } },
-      ...(cell === undefined ? [] : renderChildren(cell.children, context)),
+      { key: index, style: alignValue == null ? undefined : { textAlign: alignValue },
+        ...cell === undefined ? {} : proseAttributes(cell, cellContext.contentLanguage, cellContext.inferenceBlocked === true) },
+      ...(cell === undefined ? [] : renderChildren(cell.children, cellContext)),
     ))
   }
   return <tr key={key}>{cells}</tr>

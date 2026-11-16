@@ -73,6 +73,7 @@
   min-width: 0;
   flex: 1;
   font: var(--dsl-terminal-font);
+  font-family: var(--ds-font-family-code);
 }
 
 .promptLine {
@@ -153,6 +154,7 @@
   max-height: var(--dsl-terminal-output-max-height, none);
   padding: 12px 14px 12px 0;
   font: var(--dsl-terminal-font);
+  font-family: var(--ds-font-family-code);
   overflow-x: auto;
   overflow-y: auto;
 }
@@ -203,5 +205,6 @@
 .empty {
   padding: 12px 14px 12px 0;
   font: var(--dsl-terminal-font);
+  font-family: var(--ds-font-family-code);
   color: var(--dsw-alias-label-tertiary);
 }

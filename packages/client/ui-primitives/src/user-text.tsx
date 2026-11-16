@@ -17,7 +17,7 @@ export interface UserTextRunProps {
  * @returns one inline run without Markdown or reference recognition.
  */
 export function UserTextRun({ text }: UserTextRunProps): ReactNode {
-  return <span className={css.plainRun}>{text}</span>
+  return <span className={css.plainRun} data-dsh-content>{text}</span>
 }
 
 /** Presentation selected by a reference renderer, independent of its matching grammar. */

@@ -6,6 +6,7 @@
   min-width: 0;
   overflow-wrap: anywhere;
   font: var(--dsw-font-markdown-base);
+  font-family: var(--dsw-font-family);
   color: var(--dsw-alias-label-primary);
 }
 
@@ -15,26 +16,31 @@
 
 .markdown h1 {
   font: var(--dsw-font-markdown-h1);
+  font-family: var(--dsw-font-family);
   margin: 32px 0 16px;
 }
 
 .markdown h2 {
   font: var(--dsw-font-markdown-h2);
+  font-family: var(--dsw-font-family);
   margin: 32px 0 16px;
 }
 
 .markdown h3 {
   font: var(--dsw-font-markdown-h3);
+  font-family: var(--dsw-font-family);
   margin: 32px 0 16px;
 }
 
 .markdown h4 {
   font: var(--dsw-font-markdown-h4);
+  font-family: var(--dsw-font-family);
   margin: 16px 0;
 }
 
 .markdown :where(h5, h6) {
   font: var(--dsw-font-markdown-base-strong);
+  font-family: var(--dsw-font-family);
   margin: 16px 0;
 }
 
@@ -260,6 +266,7 @@
   border-bottom: 0.5px solid var(--dsw-alias-border-l3);
   border-top: none;
   font: var(--dsw-font-markdown-table-head);
+  font-family: var(--dsw-font-family);
   max-width: 320px;
   max-width: min(30vw, 320px);
   min-width: 100px;
@@ -269,6 +276,7 @@
   padding: 10px 16px;
   border-bottom: 0.5px solid var(--dsw-alias-border-l2);
   font: var(--dsw-font-markdown-table);
+  font-family: var(--dsw-font-family);
   max-width: 320px;
   max-width: min(30vw, 320px);
   min-width: 100px;

@@ -137,6 +137,13 @@ The atoms cannot read the application locale, so every piece of user-facing copy
 
 -----
 
+<a id="content-language-and-font-hints"></a>
+### Content language and font hints
+
+`MarkdownText` accepts an optional `lang` for a content author’s explicit language. The renderer preserves supported AST language attributes and carries them through nested blocks. The document and application shell supply defaults; they do not block font hints within a message. Paragraphs, headings, list text and table cells containing kana receive `data-dsh-cjk="ja"` when no content-owned language blocks inference. URLs, code, math, raw HTML, punctuation-only text and explicitly tagged child text do not trigger a surrounding hint. An explicit non-Japanese ancestor remains protected, including around nested Japanese text.
+
+The hint selects fonts without changing `lang`, source text, clipboard content or accessibility semantics. Code keeps its regional preference and explicit content language; fence info still identifies the programming language. Heading and table font shorthands explicitly consume the local family after setting their size and weight. `UserTextRun` is a content-font boundary for uninterpreted user text. The [theme policy](../ui-theme/README.md#cjk-character-forms) owns regional defaults and custom-font priority.
+
 <a id="understand-the-implementation"></a>
 ## Understand the implementation
 

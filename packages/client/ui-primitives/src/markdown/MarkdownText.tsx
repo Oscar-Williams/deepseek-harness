@@ -24,6 +24,7 @@ import {
 import type { MarkdownFileMentions, MarkdownLabels, MarkdownPathImages, MarkdownRenderContext, ReferenceTargets } from './render.tsx'
 import 'katex/dist/katex.min.css'
 import css from './MarkdownText.module.css'
+import { permitsJapaneseInference } from './prose-language.ts'
 
 export type { MarkdownCodeLabels, MarkdownFileMentions, MarkdownLabels, MarkdownPathImages } from './render.tsx'
 
@@ -34,11 +35,14 @@ function renderSettled(
   fileMentions: MarkdownFileMentions | undefined,
   pathImages: MarkdownPathImages | undefined,
   omitHtml: boolean,
+  lang: string | undefined,
 ): ReactNode[] {
   const root = parseGfmWithMath(text)
   const targets = createReferenceTargets()
   collectReferenceTargets(root.children, targets)
   const context: MarkdownRenderContext = {
+    contentLanguage: lang,
+    inferenceBlocked: !permitsJapaneseInference(lang),
     streaming: false,
     labels,
     fileMentions,
@@ -81,7 +85,7 @@ class StreamingRenderer {
    * @param labels - Localized Markdown chrome baked into cached elements; the owner replaces the renderer when it changes.
    * @param omitHtml - Whether raw HTML renders nothing; the owner replaces the renderer when it changes.
    */
-  constructor(private readonly labels: MarkdownLabels, readonly omitHtml: boolean) {}
+  constructor(private readonly labels: MarkdownLabels, readonly omitHtml: boolean, readonly lang?: string) {}
 
   /**
    * Render the current accumulated text. Idempotent per text value, so React
@@ -112,6 +116,8 @@ class StreamingRenderer {
     collectReferenceTargets(tail.map(block => block.node), frameTargets)
     if (newlyFrozen.length > 0) {
       const frozenContext: MarkdownRenderContext = {
+        contentLanguage: this.lang,
+        inferenceBlocked: !permitsJapaneseInference(this.lang),
         streaming: true,
         labels: this.labels,
         fileMentions: undefined,
@@ -132,6 +138,8 @@ class StreamingRenderer {
       this.frozenCount = frozen.length
     }
     const tailContext: MarkdownRenderContext = {
+      contentLanguage: this.lang,
+      inferenceBlocked: !permitsJapaneseInference(this.lang),
       streaming: true,
       labels: this.labels,
       fileMentions: undefined,
@@ -176,6 +184,8 @@ class StreamingRenderer {
  * HTML as nothing instead of literal text, for documents written for HTML
  * renderers, such as package READMEs. `textInteractionSource` marks the
  * existing root as a source for text selection interactions.
+ * `lang` declares a content-owned language and protects it from kana inference;
+ * the application's document language remains a presentation default.
  * The provider's `openFile` enables local Markdown links in settled messages,
  * including `#L24` / `#L24-L30` fragments and `:24` / `:24-30` / `:24:5` suffixes
  * (ranges open at their first line, columns are ignored, and invalid locations
@@ -187,7 +197,7 @@ class StreamingRenderer {
  * absolute HTTP(S) images render directly.
  */
 export const MarkdownText = memo(function MarkdownText({
-  text, streaming = false, labels, fileMentions, pathImages, variant = 'body', omitHtml = false, textInteractionSource = false,
+  text, streaming = false, labels, fileMentions, pathImages, variant = 'body', omitHtml = false, textInteractionSource = false, lang,
 }: {
   text: string
   streaming?: boolean
@@ -197,21 +207,24 @@ export const MarkdownText = memo(function MarkdownText({
   variant?: 'body' | 'compact'
   omitHtml?: boolean
   textInteractionSource?: boolean
+  lang?: string | undefined
 }) {
   const streamRef = useRef<StreamingRenderer | null>(null)
   const streamLabelsRef = useRef<MarkdownLabels>(labels)
   const children = useMemo(() => {
     if (!streaming) {
       streamRef.current = null
-      return renderSettled(text, labels, fileMentions, pathImages, omitHtml)
+      return renderSettled(text, labels, fileMentions, pathImages, omitHtml, lang)
     }
-    if (streamRef.current === null || streamLabelsRef.current !== labels || streamRef.current.omitHtml !== omitHtml) {
-      streamRef.current = new StreamingRenderer(labels, omitHtml)
+    if (streamRef.current === null || streamLabelsRef.current !== labels
+      || streamRef.current.omitHtml !== omitHtml || streamRef.current.lang !== lang) {
+      streamRef.current = new StreamingRenderer(labels, omitHtml, lang)
       streamLabelsRef.current = labels
     }
     return streamRef.current.render(text)
-  }, [text, streaming, labels, fileMentions, pathImages, omitHtml])
+  }, [text, streaming, labels, fileMentions, pathImages, omitHtml, lang])
   return <div className={clsx(css.markdown, variant === 'compact' && css.compact)}
+    data-dsh-content lang={lang}
     data-text-interaction-source={textInteractionSource ? '' : undefined}
     data-markdown-variant={variant === 'compact' ? variant : undefined}
     onCopy={(event) => { copyKatexAsTex(event.nativeEvent, event.currentTarget) }}>{children}</div>
