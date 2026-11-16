@@ -46,6 +46,8 @@ The **CJK character forms** menu in the expanded font settings stores `cjkGlyphR
 
 CJK interface controls follow the interface language. In an English or other non-CJK interface, controls use the selected region, or the first CJK language in `navigator.languages` in automatic mode. Unmarked content follows a manually selected region; automatic content follows the CJK interface language, then the first CJK browser language, then platform defaults. For example, selecting Japanese in a Chinese interface keeps Chinese controls and gives unmarked content Japanese forms.
 
+Fonts such as Noto Sans CJK can substitute glyphs based on the page language. With a Japanese glyph hint or a manually selected content region, the theme uses the selected face's default forms. An explicit language tag in the content retains that language's font selection and shaping.
+
 `ThemeSnapshot.resolvedFonts` exposes fully expanded `interfaceText`, `contentText`, `code`, and `terminal` lists. The pre-plugin bootstrap and live service share `font-policy.ts`; locale and browser-language changes publish updated lists. The layout presenter applies the DOM variables, and canvas consumers use the expanded lists directly. Content-owned language attributes and font-only Japanese prose hints are described in [ui-primitives](../ui-primitives/README.md#content-language-and-font-hints).
 
 ### Registering a theme

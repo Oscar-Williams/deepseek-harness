@@ -46,6 +46,8 @@ Desktop 的固定快捷键 `Cmd`/`Ctrl` + `+`（或 `=`）和 `Cmd`/`Ctrl` + `-`
 
 中日韩界面的控件跟随界面语言。英语等非中日韩界面的控件使用手动选择的地区；自动模式则使用 `navigator.languages` 中的首个中日韩语言。未标注内容在手动模式下跟随所选地区；自动模式依次采用中日韩界面语言、浏览器首个中日韩语言和平台默认字体。例如，中文界面选择日文字形后，中文控件保留简体字形，未标注内容采用日文字形。
 
+Noto Sans CJK 等字体会根据页面语言替换字形。遇到日文字形提示，或用户手动选择内容地区时，主题采用所选字体的默认字形。内容内有明确的语言标记时，相应区域仍按该语言选择字体和字形。
+
 `ThemeSnapshot.resolvedFonts` 提供完全展开的 `interfaceText`、`contentText`、`code` 和 `terminal` 字体列表。启动脚本与运行时服务共用 `font-policy.ts`；界面语言或浏览器语言改变时会发布新列表。布局呈现器应用 DOM 变量，画布消费者直接使用展开后的列表。内容自身的语言属性与日文正文的字形提示见 [ui-primitives](../ui-primitives/README.zh.md#content-language-and-font-hints)。
 
 ### 注册主题
