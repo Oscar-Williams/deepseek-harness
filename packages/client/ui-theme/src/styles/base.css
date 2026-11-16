@@ -4,13 +4,22 @@
  * font stack deliberately omits a bare `monospace` tail (Windows CJK falls
  * back to SimSun otherwise). */
 :root {
+  --dsh-font-family-text-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue',
+    Helvetica, Arial, sans-serif;
+  --dsh-font-family-code-latin: 'SF Mono', 'JetBrains Mono', 'Fira Code', Consolas,
+    'Liberation Mono', Menlo, Courier;
   --dsh-font-family-text-default: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --dsw-font-family: var(--dsh-font-family-text-default);
-  --dsw-font-family-brand: 'Montserrat', var(--dsh-font-family-text-default);
-  --dsh-font-family-code-default: 'SF Mono', 'JetBrains Mono', 'Fira Code', Consolas,
-    'Liberation Mono', Menlo, Courier, 'PingFang SC', 'Microsoft YaHei';
-  --ds-font-family-code: var(--dsh-font-family-code-default);
+  --dsh-font-family-code-default: var(--dsh-font-family-code-latin), 'PingFang SC', 'Microsoft YaHei';
+  --dsh-font-family-cjk-ja: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Hiragino Kaku Gothic Pro',
+    'Yu Gothic UI', 'Yu Gothic', 'Meiryo UI', Meiryo, 'Noto Sans JP', 'Noto Sans CJK JP';
+  --dsh-font-family-cjk-ko: 'Apple SD Gothic Neo', AppleGothic, 'Malgun Gothic', 'Noto Sans KR',
+    'Noto Sans CJK KR';
+  --dsh-font-family-cjk-hant: 'PingFang TC', 'PingFang HK', 'Microsoft JhengHei UI',
+    'Microsoft JhengHei', 'Noto Sans TC', 'Noto Sans CJK TC', 'Noto Sans CJK HK';
+  --dsw-font-family: var(--dsh-font-family-text-resolved);
+  --dsw-font-family-brand: 'Montserrat', var(--dsh-font-family-text-resolved);
+  --ds-font-family-code: var(--dsh-font-family-code-resolved);
   --ds-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ds-transition-duration: 0.2s;
   --ds-transition-duration-fast: 0.1s;
@@ -23,12 +32,45 @@
   --dsw-radius-panel: 28px;
 }
 
-/* User font lists (--dsh-font-family-text/-code, written on body by the theme
- * boot script and ThemePresenter) lead the built-in stacks. An unset list
- * falls back to the built-in stack itself; the repeated families are inert. */
+/* A tagged fragment resolves its own fonts. Untagged content inherits the
+ * interface locale; the same Han code point can have different regional forms. */
+:where(:root, [lang]:not([lang=''])) {
+  --dsh-font-family-text-resolved: var(--dsh-font-family-text-default);
+  --dsh-font-family-code-resolved: var(--dsh-font-family-code-default);
+}
+
+:where(:root, [lang]:not([lang=''])):lang(ja) {
+  --dsh-font-family-text-resolved: var(--dsh-font-family-cjk-ja), var(--dsh-font-family-text-system);
+  --dsh-font-family-code-resolved: var(--dsh-font-family-code-latin), var(--dsh-font-family-cjk-ja), monospace;
+}
+
+:where(:root, [lang]:not([lang=''])):lang(ko) {
+  --dsh-font-family-text-resolved: var(--dsh-font-family-cjk-ko), var(--dsh-font-family-text-system);
+  --dsh-font-family-code-resolved: var(--dsh-font-family-code-latin), var(--dsh-font-family-cjk-ko), monospace;
+}
+
+:where(:root, [lang]:not([lang=''])):is(:lang(zh-Hant), :lang(zh-TW), :lang(zh-HK), :lang(zh-MO), :lang(cmn-Hant), :lang(yue-Hant)) {
+  --dsh-font-family-text-resolved: var(--dsh-font-family-cjk-hant), var(--dsh-font-family-text-system);
+  --dsh-font-family-code-resolved: var(--dsh-font-family-code-latin), var(--dsh-font-family-cjk-hant), monospace;
+}
+
+/* Explicit user font lists stay ahead of the locale's built-in fallback. */
+body,
+:where(body [lang]:not([lang=''])) {
+  --dsw-font-family: var(--dsh-font-family-text, var(--dsh-font-family-text-resolved)), var(--dsh-font-family-text-resolved);
+  --dsw-font-family-brand: 'Montserrat', var(--dsh-font-family-text-resolved);
+  --ds-font-family-code: var(--dsh-font-family-code, var(--dsh-font-family-code-resolved)), var(--dsh-font-family-code-resolved);
+}
+
+:where(body [lang]:not([lang=''])) {
+  font-family: var(--dsw-font-family);
+}
+
+:where(body :is(code, pre, kbd, samp)[lang]:not([lang='']), body :is(code, pre, kbd, samp) [lang]:not([lang=''])) {
+  font-family: var(--ds-font-family-code);
+}
+
 body {
-  --dsw-font-family: var(--dsh-font-family-text, var(--dsh-font-family-text-default)), var(--dsh-font-family-text-default);
-  --ds-font-family-code: var(--dsh-font-family-code, var(--dsh-font-family-code-default)), var(--dsh-font-family-code-default);
   --dsw-alias-settings-card-fill: var(--dsw-alias-bg-layer-2);
   --dsw-alias-settings-card-stroke: var(--dsw-alias-border-l4);
 }
