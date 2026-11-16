@@ -13,8 +13,8 @@ const fixture = fileURLToPath(new URL('../../../snapshots/web/seeded-history/ses
 const prose = '日本語の本文を確認します。直考骨経'
 const heading = '日本語の見出しと字形：直考骨経'
 const table = '日本語の表を確認：直考骨経'
-const pureHan = '漢字字形確認'
-const code = '直考骨経'
+const pureHan = '漢字字形確認直骨返令葛'
+const code = '直考骨経返令葛'
 let scaffold: WebScaffold
 
 beforeAll(async () => {
@@ -62,17 +62,21 @@ async function openConversation(page: Page): Promise<void> {
   await page.getByRole('heading', { name: heading, exact: true }).waitFor()
 }
 
-async function drawingControl(target: Locator, japanese: string, chinese: string, name: string, codeRole = false): Promise<void> {
+async function drawingControl(target: Locator, expectedFace: string, otherFace: string, name: string, codeRole = false) {
   const style = await target.getAttribute('style')
   const prefix = codeRole ? await target.evaluate(element => getComputedStyle(element).getPropertyValue('--dsh-font-family-code-latin') + ', ') : ''
   const actual = await target.screenshot()
   try {
-    await target.evaluate((element, family) => { element.style.setProperty('font-family', family, 'important') }, prefix + '"' + japanese + '"')
+    await target.evaluate((element, family) => {
+      element.style.setProperty('font-family', family, 'important')
+      // Keep each regional reference on its own defaults under the same language.
+      element.style.setProperty('font-feature-settings', '"locl" off', 'important')
+    }, prefix + '"' + expectedFace + '"')
     const reference = await target.screenshot()
-    await target.evaluate((element, family) => { element.style.setProperty('font-family', family, 'important') }, prefix + '"' + chinese + '"')
+    await target.evaluate((element, family) => { element.style.setProperty('font-family', family, 'important') }, prefix + '"' + otherFace + '"')
     const negative = await target.screenshot()
     const matches = await target.page().evaluate(async (images) => {
-      const decoded = []
+      const decoded: ImageData[] = []
       for (const bytes of images) {
         const bitmap = await createImageBitmap(new Blob([new Uint8Array(bytes)], { type: 'image/png' }))
         try {
@@ -82,18 +86,29 @@ async function drawingControl(target: Locator, japanese: string, chinese: string
           const context = canvas.getContext('2d')
           if (context === null) throw new Error('Canvas is unavailable for PNG comparison')
           context.drawImage(bitmap, 0, 0)
-          decoded.push({ width: bitmap.width, height: bitmap.height, pixels: context.getImageData(0, 0, bitmap.width, bitmap.height).data })
+          decoded.push(context.getImageData(0, 0, bitmap.width, bitmap.height))
         } finally { bitmap.close() }
       }
-      const first = decoded[0]
-      if (first === undefined) throw new Error('Missing actual screenshot')
-      return decoded.slice(1).map(other => first.width === other.width && first.height === other.height
-        && first.pixels.every((value, index) => value === other.pixels[index]))
+      const equal = (first: ImageData, other: ImageData) =>
+        first.width === other.width && first.height === other.height
+        && first.data.every((value, index) => value === other.data[index])
+      const [painted, expected, opposite] = decoded
+      if (painted === undefined || expected === undefined || opposite === undefined) throw new Error('Missing font control image')
+      return {
+        matchesExpected: equal(painted, expected),
+        matchesOther: equal(painted, opposite),
+        regionalControlsDiffer: !equal(expected, opposite),
+      }
     }, [Array.from(actual), Array.from(reference), Array.from(negative)])
     await writeFile(join(output, name + '-actual.png'), actual)
-    if (matches[0] !== true) await writeFile(join(output, name + '-reference.png'), reference)
-    expect(matches[0], 'actual pixels must equal the installed regional reference: ' + name).toBe(true)
-    expect(matches[1], 'the other region must draw differently: ' + name).toBe(false)
+    if (!matches.matchesExpected || !matches.regionalControlsDiffer) {
+      await writeFile(join(output, name + '-reference.png'), reference)
+      await writeFile(join(output, name + '-other.png'), negative)
+    }
+    expect.soft(matches.regionalControlsDiffer, 'the two control fonts must draw differently: ' + name).toBe(true)
+    expect.soft(matches.matchesExpected, 'actual pixels must equal the installed regional reference: ' + name).toBe(true)
+    expect.soft(matches.matchesOther, 'actual pixels must differ from the other region: ' + name).toBe(false)
+    return { name, expectedFace, otherFace, ...matches }
   } finally {
     await target.evaluate((element, previous) => {
       if (previous === null) element.removeAttribute('style')
@@ -119,15 +134,16 @@ for (const name of selected) {
     const page = await browser.newPage({ locale: 'ja-JP', viewport: { width: 1440, height: 960 } })
     resources.page = page
     await openConversation(page)
-    const japanese = await installedFace(page, ['Hiragino Sans', 'Yu Gothic UI', 'Meiryo', 'Noto Sans CJK JP', 'Noto Sans JP'])
-    const chinese = await installedFace(page, ['PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', 'Noto Sans SC'])
+    const japanese = await installedFace(page, ['Hiragino Sans', 'Yu Gothic UI', 'Meiryo', 'Noto Sans JP', 'Noto Sans CJK JP'])
+    const chinese = await installedFace(page, ['PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', 'Noto Sans CJK SC'])
     const targets = [
       page.getByRole('heading', { name: heading, exact: true }),
       page.locator('[data-dsh-content] p').filter({ hasText: prose }),
       page.getByRole('cell', { name: table, exact: true }),
       page.locator('pre code').filter({ hasText: code }),
     ]
-    const report: Record<string, object | string> = { platform: process.platform, browser: browser.version(), engine: name, japanese, chinese, commit: process.env.GITHUB_SHA ?? 'local-working-tree' }
+    const comparisons: Array<Awaited<ReturnType<typeof drawingControl>>> = []
+    const report: Record<string, object | string> = { platform: process.platform, browser: browser.version(), engine: name, japanese, chinese, comparisons, commit: process.env.GITHUB_SHA ?? 'local-working-tree' }
     if (name === 'chromium') {
       const cdp = await page.context().newCDPSession(page)
       try {
@@ -148,13 +164,15 @@ for (const name of selected) {
       } finally { await cdp.detach() }
     }
     await writeFile(join(output, name + '-results.json'), JSON.stringify(report, null, 2) + '\n')
-    for (const [index, target] of targets.entries()) await drawingControl(target, japanese, chinese, name + '-' + index, index === 3)
+    for (const [index, target] of targets.entries()) {
+      comparisons.push(await drawingControl(target, japanese, chinese, name + '-' + index, index === 3))
+    }
     await page.screenshot({ path: join(output, name + '-japanese-application.png') })
     // Chinese chrome keeps its region; kana prose still picks Japanese.
     await scaffold.ctx.settings.update('locale', { preference: 'zh' })
     await page.waitForFunction(() => document.documentElement.lang === 'zh-CN')
     expect(await targets[1]!.getAttribute('data-dsh-cjk')).toBe('ja')
-    await drawingControl(targets[1]!, japanese, chinese, name + '-chinese-ui-japanese-prose')
+    comparisons.push(await drawingControl(targets[1]!, japanese, chinese, name + '-chinese-ui-japanese-prose'))
     const interfaceFonts = await page.locator('body').evaluate(element => getComputedStyle(element).getPropertyValue('--dsh-font-family-text-resolved'))
     expect(interfaceFonts).toContain('Microsoft YaHei')
     const unmarked = page.locator('[data-dsh-content] p').filter({ hasText: pureHan })
@@ -164,10 +182,14 @@ for (const name of selected) {
     await page.waitForFunction(() => document.body.dataset.dshCjkGlyphRegion === 'ja')
     expect(await page.locator('body').evaluate(element => getComputedStyle(element).getPropertyValue('--dsh-font-family-text-resolved'))).toContain('Microsoft YaHei')
     expect(await targets[3]!.evaluate(element => getComputedStyle(element).fontFamily)).toContain('Yu Gothic UI')
-    await drawingControl(unmarked, japanese, chinese, name + '-manual-pure-han')
+    comparisons.push(await drawingControl(unmarked, japanese, chinese, name + '-manual-pure-han'))
+    await unmarked.evaluate((element) => { element.setAttribute('lang', 'zh-Hans') })
+    try {
+      comparisons.push(await drawingControl(unmarked, chinese, japanese, name + '-explicit-hans-with-manual-ja'))
+    } finally { await unmarked.evaluate((element) => { element.removeAttribute('lang') }) }
     const previous = await page.locator('body').evaluate(element => element.style.getPropertyValue('--dsh-font-family-text'))
     await page.locator('body').evaluate((element, family) => { element.style.setProperty('--dsh-font-family-text', '"' + family + '"') }, chinese)
-    try { await drawingControl(targets[1]!, chinese, japanese, name + '-custom-font-priority') }
+    try { comparisons.push(await drawingControl(targets[1]!, chinese, japanese, name + '-custom-font-priority')) }
     finally {
       await page.locator('body').evaluate((element, value) => {
         if (value === '') element.style.removeProperty('--dsh-font-family-text')
@@ -181,7 +203,19 @@ for (const name of selected) {
     await scaffold.ctx.settings.update('ui-theme', { cjkGlyphRegion: 'auto' })
     await page.waitForFunction(() => document.documentElement.lang === 'en' && document.body.dataset.dshCjkGlyphRegion === 'auto')
     expect(await page.locator('body').evaluate(element => getComputedStyle(element).getPropertyValue('--dsh-font-family-text-resolved'))).toContain('Yu Gothic UI')
-    await drawingControl(unmarked, japanese, chinese, name + '-english-ui-japanese-preference')
+    comparisons.push(await drawingControl(unmarked, japanese, chinese, name + '-english-ui-japanese-preference'))
+
+    // Exercise the reported macOS Firefox class of problem even when both
+    // the interface and browser default to English.
+    const englishPage = await browser.newPage({ locale: 'en-US', viewport: { width: 1440, height: 960 } })
+    try {
+      await openConversation(englishPage)
+      expect(await englishPage.locator('html').getAttribute('lang')).toBe('en')
+      expect(await englishPage.evaluate(() => navigator.languages.some(locale => /^ja(?:-|$)/i.test(locale)))).toBe(false)
+      const japaneseProse = englishPage.locator('[data-dsh-content] p').filter({ hasText: prose })
+      expect(await japaneseProse.getAttribute('data-dsh-cjk')).toBe('ja')
+      comparisons.push(await drawingControl(japaneseProse, japanese, chinese, name + '-english-ui-japanese-prose'))
+    } finally { await englishPage.close() }
     // Explicit-language CSS controls live inside a labeled content subtree.
     const explicit = await page.evaluate(() => {
       const root = document.createElement('div')

@@ -20,13 +20,14 @@ jobs:
     name: fonts (${{ matrix.os }})
     strategy:
       fail-fast: false
-      max-parallel: 1
       matrix:
-        os: [macos-26, ubuntu-24.04]
+        os: [macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
       - uses: pnpm/action-setup@v5.0.0
       - uses: actions/setup-node@v7.0.0
         with:
@@ -42,12 +43,29 @@ jobs:
       - name: Install browsers on macOS
         if: runner.os == 'macOS'
         run: pnpm --filter @deepseek-ai/dsh-web-frontend exec playwright install chromium firefox webkit
-      - name: Build once
-        run: pnpm run build:artifacts --serial
-      - name: Verify three engines serially
+      - name: Build and check the application
+        id: build
+        run: |
+          pnpm run build:artifacts --serial
+          pnpm run build:check --serial
+      - name: Verify regional glyphs in Chromium, Firefox and WebKit
         env:
           DSH_FONT_BROWSERS: chromium,firefox,webkit
         run: pnpm exec vitest run --config vitest.web.config.ts apps/web/tests/regional-fonts.e2e.ts --maxWorkers=1
+      - name: Replay the Japanese Web conversation
+        if: ${{ !cancelled() && steps.build.conclusion == 'success' }}
+        run: pnpm exec vitest run --config vitest.web.config.ts apps/web/tests/japanese-fonts.e2e.ts --maxWorkers=1
+      - name: Replay recorded text and parallel tool calls through the CLI
+        if: ${{ !cancelled() && steps.build.conclusion == 'success' }}
+        env:
+          DSH_EXAMPLE_MODE: lib
+          DSH_SNAPSHOT_MAX_CONCURRENCY: '1'
+        run: |
+          mkdir -p output/japanese-fonts
+          pnpm run test:snapshot snapshots/session/headless.snapshot.ts \
+            -t 'replays (text-turn|parallel-tool-calls) ' \
+            --reporter=default --reporter=json --outputFile.json=output/japanese-fonts/recorded-sessions.json
+          node -e 'const report = require("./output/japanese-fonts/recorded-sessions.json"); require("node:assert/strict").equal(report.numPassedTests, 2)'
       - uses: actions/upload-artifact@v6.0.0
         if: always()
         with:
