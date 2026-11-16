@@ -21,9 +21,10 @@ export type TerminalBodyProps = PropsRuntime<'sidebar.right.pane.tab'> & PropsLo
  * @param props - sidebar occurrence, model lookup and translated copy.
  * @returns the terminal screen and any pending or exceptional state.
  */
-export function TerminalBody({ useTabInfo, useTerminal, useTheme, view, t }: TerminalBodyProps): ReactNode {
+export function TerminalBody({ useTabInfo, useTerminal, useTheme, useLocale, view, t }: TerminalBodyProps): ReactNode {
   const { tab } = useTabInfo()
   const theme = useTheme(value => value)
+  const locale = useLocale(value => value)
   const model = view(tab.id)
   const state = useTerminal(tab.id)
   useEffect(() => model.mount(), [model])
@@ -63,7 +64,7 @@ export function TerminalBody({ useTabInfo, useTerminal, useTheme, view, t }: Ter
           : <Button variant="outline" size="sm" onClick={() => { model.connect() }}>{t('reconnect')}</Button>)}
         {ended && newTerminal}
       </div>}
-      {state.info !== undefined && <TerminalScreen state={state} model={model} visible={tab.visible} label={t('title')} theme={theme} />}
+      {state.info !== undefined && <TerminalScreen state={state} model={model} visible={tab.visible} label={t('title')} theme={theme} locale={locale} />}
       {error !== undefined && <p className={css.error} role="alert">{t('failed', { message: error })}</p>}
     </section>
   )
@@ -80,19 +81,20 @@ const INPUT_GESTURES = ['keydown', 'beforeinput', 'paste', 'compositionend', 'dr
 const FOCUS_REPORTS = new Set(['\x1b[I', '\x1b[O'])
 
 /* oxlint-disable typescript/no-non-null-assertion -- React sets the DOM ref, then these effects initialize and use the emulator. */
-function TerminalScreen({ state, model, visible, label, theme }: {
+function TerminalScreen({ state, model, visible, label, theme, locale }: {
   state: TerminalViewState
   model: TerminalView
   visible: boolean
   label: string
   theme: ThemeSnapshot
+  locale: string
 }): ReactNode {
   const element = useRef<HTMLDivElement>(null)
   const terminal = useRef<Terminal>()
   const fit = useRef<FitAddon>()
   const colors = useRef<TerminalTheme>()
   const lastRevision = useRef(0)
-  const fontFamily = terminalFontFamily(theme.fontFamilies.terminal)
+  const fontFamily = terminalFontFamily(theme.fontFamilies.terminal, locale)
   const fontSize = theme.fontSizes.terminal
   const current = useRef({ state, visible, fontFamily, fontSize })
   current.current = { state, visible, fontFamily, fontSize }
@@ -181,11 +183,26 @@ function TerminalScreen({ state, model, visible, label, theme }: {
 }
 /* oxlint-enable typescript/no-non-null-assertion */
 
-/** Built-in terminal stack placed after the user's normalized list. */
-const TERMINAL_FONT_STACK = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'
+const TERMINAL_LATIN_FONTS = 'SFMono-Regular, Menlo, Consolas'
+const TERMINAL_ICON_FONTS = '"Symbols Nerd Font Mono", "Symbols Nerd Font"'
+const TERMINAL_CJK_JA = '"Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", "Meiryo UI", Meiryo, "Noto Sans JP", "Noto Sans CJK JP"'
+const TERMINAL_CJK_KO = '"Apple SD Gothic Neo", AppleGothic, "Malgun Gothic", "Noto Sans KR", "Noto Sans CJK KR"'
+const TERMINAL_CJK_HANT = '"PingFang TC", "PingFang HK", "Microsoft JhengHei UI", "Microsoft JhengHei", "Noto Sans TC", "Noto Sans CJK TC"'
+const TERMINAL_CJK_HANS = '"PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Noto Sans CJK SC"'
 
-function terminalFontFamily(list: string): string {
-  return list === '' ? TERMINAL_FONT_STACK : `${list}, ${TERMINAL_FONT_STACK}`
+/** Match the supported UI locale families before falling back to the platform. */
+function terminalCjkFonts(locale: string): string {
+  const [language, qualifier] = locale.toLowerCase().split('-', 2)
+  if (language === 'ja') return TERMINAL_CJK_JA
+  if (language === 'ko') return TERMINAL_CJK_KO
+  if ((language === 'zh' || language === 'cmn' || language === 'yue') && qualifier === 'hant') return TERMINAL_CJK_HANT
+  if (language === 'zh') return qualifier === 'tw' || qualifier === 'hk' || qualifier === 'mo' ? TERMINAL_CJK_HANT : TERMINAL_CJK_HANS
+  return ''
+}
+
+function terminalFontFamily(userFonts: string, locale: string): string {
+  return [userFonts, TERMINAL_LATIN_FONTS, TERMINAL_ICON_FONTS, terminalCjkFonts(locale), 'ui-monospace, monospace']
+    .filter(Boolean).join(', ')
 }
 
 function fitScreen(xterm: Terminal, fit: FitAddon, state: TerminalViewState, model: TerminalView): void {

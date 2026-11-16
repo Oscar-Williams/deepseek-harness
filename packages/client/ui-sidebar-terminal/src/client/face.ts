@@ -12,9 +12,12 @@ export interface TerminalInjected {
 }
 
 
-/** The terminal screen follows the resolved application theme through a framework hook. */
+/** The terminal screen follows the application theme and active UI locale. */
 export interface TerminalBodyInjected extends TerminalInjected {
-  readonly hooks: { readonly theme: HostObservable<ThemeSnapshot> }
+  readonly hooks: {
+    readonly theme: HostObservable<ThemeSnapshot>
+    readonly locale: HostObservable<string>
+  }
 }
 
 declare module '@deepseek-ai/dsh-client-ui-sidebar-right/client' {

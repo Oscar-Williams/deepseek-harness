@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 /** Terminal startup, title editing and xterm's screen lifetime. */
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render } from '@testing-library/react'
-import type { ReactNode } from 'react'
+import { act, cleanup, fireEvent, render } from '@testing-library/react'
+import { useSyncExternalStore, type ReactNode } from 'react'
 import type { ITheme } from '@xterm/xterm'
 import type { ThemeSnapshot } from '@deepseek-ai/dsh-client-ui-theme/client'
 import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
@@ -72,6 +72,13 @@ const titleSurfaces = [
 function mount(initial: TerminalViewState | undefined = idle, dictionary = en) {
   let state: TerminalViewState | undefined = initial
   let visible = true
+  let locale = 'en'
+  const localeListeners = new Set<() => void>()
+  const readLocale = () => locale
+  const subscribeLocale = (listener: () => void) => {
+    localeListeners.add(listener)
+    return () => { localeListeners.delete(listener) }
+  }
   let theme: ThemeSnapshot = {
     preference: 'light', fontSizes: { text: 14, code: 11, terminal: 13 }, fontFamilies: { text: '', code: '', terminal: '' },
     active: { id: 'light', colorScheme: 'light', tokens: {} }, themes: [], revision: 0,
@@ -88,11 +95,18 @@ function mount(initial: TerminalViewState | undefined = idle, dictionary = en) {
     view: () => model,
     useTerminal: (_key: string, select?: (value: TerminalViewState | undefined) => unknown) => select === undefined ? state : select(state),
     useTheme: (select: (value: ThemeSnapshot) => unknown) => select(theme),
+    useLocale: (select: (value: string) => unknown) => select(useSyncExternalStore(subscribeLocale, readLocale)),
     useTabInfo: tab, t: makeTranslate(dictionary),
   } as unknown as TerminalBodyProps
   const view = render(<TerminalBody {...props} />)
   return {
     view, props, model, detach, openTab,
+    changeLocale(next: string) {
+      act(() => {
+        locale = next
+        for (const listener of localeListeners) listener()
+      })
+    },
     changeTheme(next: Partial<ThemeSnapshot> = {}) {
       theme = { ...theme, ...next, revision: theme.revision + 1 }
       view.rerender(<TerminalBody {...props} />)
@@ -252,7 +266,7 @@ it('applies the terminal font list and size and refits without replacing the ter
   const state: TerminalViewState = { ...idle, info, phase: 'connected', writable: true }
   const h = mount(state)
   const terminal = fake.terminals[0]!
-  const stack = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'
+  const stack = 'SFMono-Regular, Menlo, Consolas, "Symbols Nerd Font Mono", "Symbols Nerd Font", ui-monospace, monospace'
   expect(terminal.options.fontFamily).toBe(stack)
   h.model.resize.mockClear()
   h.changeTheme({ fontFamilies: { text: '"Inter"', code: '', terminal: '' } })
@@ -506,4 +520,22 @@ it('offers a new terminal after process exit while preserving its final output f
   expect(h.view.queryByRole('button', { name: en.reconnect })).toBeNull()
   fireEvent.click(h.view.getByRole('button', { name: en.new }))
   expect(h.openTab).toHaveBeenCalledExactlyOnceWith('terminal', { replaceTab: true })
+})
+
+it('applies locale changes to the current terminal and preserves custom fonts', () => {
+  const h = mount({ ...idle, info, phase: 'connected', writable: true })
+  const terminal = fake.terminals[0]!
+  h.changeTheme({ fontFamilies: { text: '', code: '', terminal: '"Custom Mono"' } })
+  h.changeLocale('ja-JP')
+  expect(terminal.options.fontFamily).toMatch(/^"Custom Mono",/)
+  expect(terminal.options.fontFamily).toContain('"Yu Gothic UI", "Yu Gothic"')
+  expect(terminal.options.fontFamily).not.toContain('Microsoft YaHei')
+  h.changeLocale('zh-Hant')
+  expect(terminal.options.fontFamily).toContain('Microsoft JhengHei')
+  h.changeLocale('ko-KR')
+  expect(terminal.options.fontFamily).toContain('Malgun Gothic')
+  h.changeLocale('zh-CN')
+  expect(terminal.options.fontFamily).toContain('Microsoft YaHei')
+  expect(fake.terminals).toEqual([terminal])
+  expect(terminal.dispose).not.toHaveBeenCalled()
 })
