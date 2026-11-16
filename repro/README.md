@@ -1,11 +1,11 @@
 # rc.3 复现与采用
 
-下面在 Windows 上构建加入修复的 `dsh-v0.2.2-rc.3`。命令检出待审阅提交 `e944ab65`。如需重建实机验收所用的 Web 和桌面构建，可按验收记录检出 `6896be77`。[Windows 验收记录](../verification.md)
+下面在 Windows 上构建加入修复的 `dsh-v0.2.2-rc.3`。命令检出待审阅提交 `e0e5bdeb`。如需重建实机验收所用的 Web 和桌面构建，可按验收记录检出 `6896be77`。[Windows 验收记录](../verification.md)
 
 ```powershell
 git clone --filter=blob:none --single-branch --branch fix/japanese-product-experience-rc3 https://github.com/Oscar-Williams/deepseek-harness.git dsh-japanese-source
 Set-Location -LiteralPath ./dsh-japanese-source
-git switch --detach e944ab650c861cb7dc697dab718b88fdff884890
+git switch --detach e0e5bdeba6f8790bef937baddcc203a4bc2fca8c
 corepack pnpm install --frozen-lockfile
 $env:DSH_GATE_CONCURRENCY = '1'
 corepack pnpm run build:artifacts --serial
@@ -80,3 +80,19 @@ try {
 ```
 
 查看欢迎、路径选择、安装进度、安装完成、卸载与重启提示。在 150% 显示缩放下确认「今すぐインストール」完整显示。脚本结束时会输出样例目录。[桌面与安装器验收结果](../verification.md#桌面与安装器)
+
+## 在 GitHub Actions 复验
+
+在 fork 的 Actions 页运行 **Japanese font verification**，选择修复分支。也可以通过 GitHub CLI 发起同一个工作流。[工作流入口](https://github.com/Oscar-Williams/deepseek-harness/actions/workflows/japanese-fonts.yml)
+
+```powershell
+gh workflow run japanese-fonts.yml -R Oscar-Williams/deepseek-harness --ref fix/japanese-product-experience-rc3
+```
+
+`macos-latest` 和 `ubuntu-latest` 各自构建 rc.3 修复版，再运行 Playwright Firefox、WebKit 和 Chromium 的字形用例。在同一元素上比较实际绘制与运行器上的日文、简体字体。回放步骤独立检查浏览器里的日语会话和 CLI 的两份录制。
+
+同一提交的 Ubuntu 作业已通过时，可以重试本轮尚未通过的作业。当前运行中，此命令只重新排队 macOS。
+
+```powershell
+gh run rerun 43949736750 -R Oscar-Williams/deepseek-harness --failed
+```

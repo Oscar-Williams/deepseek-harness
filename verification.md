@@ -1,8 +1,8 @@
-# rc.3 Windows 验收记录
+# rc.3 验收记录
 
 Windows 实机验收使用加入修复后构建的 `dsh-v0.2.2-rc.3`。Web 和桌面欢迎页使用 `6896be77` 的构建产物。环境为 Windows 11 x64，构建使用 Node.js 24.19.0 和 pnpm 11.28.5。[实机验收构建对应的源码](https://github.com/Oscar-Williams/deepseek-harness/commit/6896be77b03f0fe03e1042600dc1b58d6b51b6b7)
 
-待审阅提交 `e944ab65` 在该构建的源码上更新了两条预装插件简介及工作流的浏览器安装命令。插件目录检查、推送前类型检查和 Edge 会话与终端复现脚本均已通过。[待审阅源码](https://github.com/Oscar-Williams/deepseek-harness/commit/e944ab650c861cb7dc697dab718b88fdff884890)
+插件目录同步后，Edge 会话与终端脚本在 `e944ab65` 上也通过了复验。随后补齐 Noto 地区字形和在线回归，当前待审阅源码为 `e0e5bdeb`。下列 Windows 记录和 CI 矩阵分别标明了所用的构建。[待审阅源码](https://github.com/Oscar-Williams/deepseek-harness/commit/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c)
 
 ## Web 字形与设置
 
@@ -51,4 +51,15 @@ Edge 内置翻译将会话标题和滚入可见区的英文消息译成日文。
 | `verify-client-ui-i18n` 与 `verify-japanese-experience` | 1318 个 Client 文件的文案归属、63 份词典和 266 份样式的专项检查通过。 |
 | 配置、文案与双语说明 | 配置目录、Cordis 检查目录、插件目录、双语配对及文档站构建通过。 |
 | fork 推送前检查 | 5 项类型检查通过。 |
-| 固定补丁 | 合并 diff 和按序应用的 14 份补丁均从 rc.3 重建同一候选树。 |
+| 固定补丁 | 合并 diff 和按序应用的 17 份补丁均从 rc.3 重建待审阅提交 `e0e5bdeb` 的源码。 |
+
+## macOS 与 Ubuntu 的 CI 回归
+
+工作流从修复后的 rc.3 源码 `e0e5bdeb` 构建。每个引擎都检查正文、标题、表格、代码、手动地区和显式语种。在同一元素上绘制日文、简体两个参照，要求两者像素不同，并要求应用当前绘制结果匹配预期参照。英文界面和英文浏览器偏好下的日文段落覆盖了 #9516 描述的字形问题。[原始反馈](https://github.com/deepseek-ai/deepseek-harness/discussions/9516)
+
+| 运行器 | 字形 | 会话回放 |
+| --- | --- | --- |
+| [`ubuntu-latest`（Ubuntu 26.04）](https://github.com/Oscar-Williams/deepseek-harness/actions/runs/43949736750/job/133588743200) | Firefox 151.0、WebKit 26.5 和 Chromium 149.0.7827.55 均通过，每个引擎 12 组像素对照。日文与简体参照为 Noto Sans CJK JP 和 Noto Sans CJK SC。 | 日语 Web 会话、CLI 的 `text-turn` 和 `parallel-tool-calls` 均通过。 |
+| [`macos-latest`](https://github.com/Oscar-Williams/deepseek-harness/actions/runs/43949736750/job/133610962559) | GitHub 三次在排队阶段因 ARM64 运行器容量不足取消。字形用例待运行。 | 日语 Web 会话和两份 CLI 录制待运行。 |
+
+三次尝试均保留了同一提交的 Ubuntu 结果，macOS 分配到运行器后可单独完成余下验证。[GitHub Actions 测试报告](https://github.com/Oscar-Williams/deepseek-harness/actions/runs/43949736750) · [macOS 首次作业](https://github.com/Oscar-Williams/deepseek-harness/actions/runs/43949736750/job/133588742498) · [第二次作业](https://github.com/Oscar-Williams/deepseek-harness/actions/runs/43949736750/job/133600171049)

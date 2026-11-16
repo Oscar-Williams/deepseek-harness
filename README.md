@@ -4,7 +4,7 @@
 
 修复后，中文界面的菜单继续使用简体字形，含假名的日文回复可自动用日文字形。需要阅读纯汉字内容或代码时，可以在字体设置中把「CJK 字形」选为日文。切到日语界面后，正文、代码和终端默认使用日文字形。独立欢迎页跟随窗口语言，Windows 安装器跟随安装时选中的语言。
 
-[English summary](summary.en.md) · [与官方 rc.3 的源码差异](https://github.com/deepseek-ai/deepseek-harness/compare/38a6a5c965aa99ab525161efb7cc5cf1fe62fced...Oscar-Williams:fix/japanese-product-experience-rc3) · [待审阅源码 e944ab65](https://github.com/Oscar-Williams/deepseek-harness/tree/e944ab650c861cb7dc697dab718b88fdff884890)
+[English summary](summary.en.md) · [与官方 rc.3 的源码差异](https://github.com/deepseek-ai/deepseek-harness/compare/38a6a5c965aa99ab525161efb7cc5cf1fe62fced...Oscar-Williams:fix/japanese-product-experience-rc3) · [待审阅源码 e0e5bdeb](https://github.com/Oscar-Williams/deepseek-harness/tree/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c)
 
 ## 效果
 
@@ -13,6 +13,8 @@
 | ![官方 rc.3 日文正文使用 Microsoft YaHei](evidence/official-rc3-fonts.png) | ![同页按语种选用 Yu Gothic UI](evidence/candidate-theme-on-rc3.png) |
 
 上图在同一页面中分别应用官方 rc.3 和修复后的字体规则。Windows 实机还检查了 Chrome 和 Firefox 中实际绘制的字体、Edge 中日语输入法与网页翻译、切换字形时的终端连接，以及独立桌面窗口和原生安装器。[Windows 验收记录](verification.md)
+
+GitHub Actions 补充检查 Chromium、Firefox、WebKit 的字形及录制会话回放。Ubuntu 已通过。macOS 作业三次在排队阶段因 ARM64 运行器容量不足取消，实测待完成。[在线回归记录](verification.md#macos-与-ubuntu-的-ci-回归)
 
 | Windows 日文安装器 | 同批的简体安装器 |
 | --- | --- |
@@ -24,7 +26,7 @@
 
 ## 提交与采用
 
-从官方 rc.3 的 `38a6a5c965aa99ab525161efb7cc5cf1fe62fced` 开始，按下表顺序应用补丁，可得到待审阅提交 `e944ab650c861cb7dc697dab718b88fdff884890`。文案可以单独审阅。字体相关改动先应用共享策略，再应用正文识别和对应检查。[官方 rc.3 发布页](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.2.2-rc.3)
+从官方 rc.3 的 `38a6a5c965aa99ab525161efb7cc5cf1fe62fced` 开始，按下表顺序应用补丁，可得到待审阅提交 `e0e5bdeba6f8790bef937baddcc203a4bc2fca8c`。文案可以单独审阅。字体相关改动先应用共享策略，再应用正文识别和对应检查。[官方 rc.3 发布页](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.2.2-rc.3)
 
 | 提交 | 改动 | 补丁 |
 | --- | --- | --- |
@@ -42,5 +44,8 @@
 | [6896be77](https://github.com/Oscar-Williams/deepseek-harness/commit/6896be77b03f0fe03e1042600dc1b58d6b51b6b7) | 使用已有 Chromium 的录制回放 | [.patch](https://github.com/Oscar-Williams/deepseek-harness/commit/6896be77b03f0fe03e1042600dc1b58d6b51b6b7.patch) |
 | [c8fd4381](https://github.com/Oscar-Williams/deepseek-harness/commit/c8fd4381be0114f81f289323957a42998e307bbb) | 同步预装插件目录日文简介 | [.patch](https://github.com/Oscar-Williams/deepseek-harness/commit/c8fd4381be0114f81f289323957a42998e307bbb.patch) |
 | [e944ab65](https://github.com/Oscar-Williams/deepseek-harness/commit/e944ab650c861cb7dc697dab718b88fdff884890) | 从 Web 工作区安装 Playwright 浏览器 | [.patch](https://github.com/Oscar-Williams/deepseek-harness/commit/e944ab650c861cb7dc697dab718b88fdff884890.patch) |
+| [253bf06b](https://github.com/Oscar-Williams/deepseek-harness/commit/253bf06baef2b37f148ba6c6bc846348a4110f1e) | 保留所选地区字体的默认字形，内容显式语种优先 | [.patch](https://github.com/Oscar-Williams/deepseek-harness/commit/253bf06baef2b37f148ba6c6bc846348a4110f1e.patch) |
+| [2305cd2b](https://github.com/Oscar-Williams/deepseek-harness/commit/2305cd2bdeb4264ddc589455b87fd7aed93c2d93) | 加入 GitHub Actions 的字形对照与录制回放 | [.patch](https://github.com/Oscar-Williams/deepseek-harness/commit/2305cd2bdeb4264ddc589455b87fd7aed93c2d93.patch) |
+| [e0e5bdeb](https://github.com/Oscar-Williams/deepseek-harness/commit/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c) | 让正文和代码的字形设置在组件简写后继续生效 | [.patch](https://github.com/Oscar-Williams/deepseek-harness/commit/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c.patch) |
 
 [技术说明](technical-review.zh.md)解释字体设置的优先级，以及正文如何确定字形。[复现步骤](repro/README.md)列出检出、构建、运行 Web 和检查 Windows 原生安装器的命令。
