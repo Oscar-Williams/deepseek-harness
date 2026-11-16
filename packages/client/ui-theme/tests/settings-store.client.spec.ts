@@ -30,7 +30,7 @@ describe('createAppearanceRowStore', () => {
 describe('createFontRowStore', () => {
   it('init shape: default size with revision at -1', () => {
     const store = createFontRowStore().create()
-    expect(store.getSnapshot()).toEqual({ fontSizes: { text: 14, code: 11, terminal: 13 }, fontFamilies: { text: '', code: '', terminal: '' }, revision: -1 })
+    expect(store.getSnapshot()).toEqual({ cjkGlyphRegion: 'auto', fontSizes: { text: 14, code: 11, terminal: 13 }, fontFamilies: { text: '', code: '', terminal: '' }, revision: -1 })
   })
 
   it('sync mirrors the size; the revision guard drops stale and duplicate writes', () => {
@@ -38,7 +38,7 @@ describe('createFontRowStore', () => {
     const sizes = { text: 16, code: 12, terminal: 14 }
     const fonts = { text: '"Inter"', code: '', terminal: '' }
     store.actions.sync(sizes, { ...fonts }, 3)
-    expect(store.getSnapshot()).toEqual({ fontSizes: sizes, fontFamilies: fonts, revision: 3 })
+    expect(store.getSnapshot()).toEqual({ cjkGlyphRegion: 'auto', fontSizes: sizes, fontFamilies: fonts, revision: 3 })
     store.actions.sync({ ...sizes, text: 12 }, fonts, 2)
     store.actions.sync({ ...sizes, text: 12 }, fonts, 3)
     expect(store.getSnapshot().fontSizes.text).toBe(16)

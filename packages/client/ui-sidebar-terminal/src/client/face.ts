@@ -12,11 +12,10 @@ export interface TerminalInjected {
 }
 
 
-/** The terminal screen follows the application theme and active UI locale. */
+/** The terminal screen consumes the theme's resolved typography. */
 export interface TerminalBodyInjected extends TerminalInjected {
   readonly hooks: {
     readonly theme: HostObservable<ThemeSnapshot>
-    readonly locale: HostObservable<string>
   }
 }
 

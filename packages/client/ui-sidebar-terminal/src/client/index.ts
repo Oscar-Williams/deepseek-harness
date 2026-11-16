@@ -84,10 +84,6 @@ export function apply(ctx: Context): void {
     getSnapshot: () => ctx.theme.getTheme(),
     subscribe: listener => ctx.on('theme/change', listener),
   }
-  const locale: TerminalBodyInjected['hooks']['locale'] = {
-    getSnapshot: () => ctx.locale.getSnapshot().active,
-    subscribe: listener => ctx.locale.subscribe(listener),
-  }
   ctx.effect(() => ctx.slots.inject('sidebar.right.tab.guide.entry', () => ctx.slots.register({
     name: 'sidebar.right.tab.guide.entry', key: id, locale: namespace,
     inject: (sessionId): TerminalGuideInjected => ({
@@ -98,7 +94,7 @@ export function apply(ctx: Context): void {
   }, TerminalGuide)), 'ui-sidebar-terminal.guide')
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(
     { name: 'sidebar.right.pane.tab', key: id, locale: namespace,
-      inject: (sessionId): TerminalBodyInjected => ({ ...inject(sessionId), hooks: { theme, locale } }),
+      inject: (sessionId): TerminalBodyInjected => ({ ...inject(sessionId), hooks: { theme } }),
     }, LazyTerminalBody,
   )), 'ui-sidebar-terminal.body')
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab.title', () => ctx.slots.register(

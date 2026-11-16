@@ -516,6 +516,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type ChildrenDecl = {\n    [P in keyof SlotMap & string]?: SlotSpec<SlotMap[P]>;\n};',
   },
   {
+    name: 'CjkGlyphRegion',
+    declaration: 'export type CjkGlyphRegion = typeof CJK_GLYPH_REGIONS[number];',
+  },
+  {
     name: 'ClientConnectionRpc',
     declaration: 'export interface ClientConnectionRpc {\n    call(channel: string, endpoint: string, payload: unknown, signal?: AbortSignal): Promise<ConnectionRpcResult<unknown>>;\n    readonly open?: (channel: string, endpoint: string, payload: unknown, signal: AbortSignal, uplink?: AsyncIterable<unknown>) => AsyncIterable<unknown>;\n}',
   },
@@ -876,6 +880,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type RenderFactorySlot = <F extends keyof SlotFactoryMap & string>(name: F, props: FactoryInputPropsOf<F>, options?: {\n    slots?: Partial<{\n        [N in FactoryLocalNameOf<F>]: FactoryLocalComponent<F, N>;\n    }>;\n    fallback?: ReactNode;\n}) => ReactNode;',
   },
   {
+    name: 'ResolvedFonts',
+    declaration: 'export interface ResolvedFonts {\n    readonly interfaceText: string;\n    readonly contentText: string;\n    readonly code: string;\n    readonly terminal: string;\n}',
+  },
+  {
     name: 'ScopeOf',
     declaration: 'export type ScopeOf<K extends keyof SlotMap & string> = SlotMap[K][\'scope\'];',
   },
@@ -1077,7 +1085,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'ThemeSnapshot',
-    declaration: 'export interface ThemeSnapshot {\n    preference: ThemePreference;\n    fontSizes: FontSizes;\n    fontFamilies: FontFamilies;\n    active: ThemeDefinition;\n    themes: readonly ThemeDefinition[];\n    revision: number;\n}',
+    declaration: 'export interface ThemeSnapshot {\n    readonly cjkGlyphRegion: CjkGlyphRegion;\n    readonly resolvedFonts: ResolvedFonts;\n    preference: ThemePreference;\n    fontSizes: FontSizes;\n    fontFamilies: FontFamilies;\n    active: ThemeDefinition;\n    themes: readonly ThemeDefinition[];\n    revision: number;\n}',
   },
   {
     name: 'ThemeTokenModes',

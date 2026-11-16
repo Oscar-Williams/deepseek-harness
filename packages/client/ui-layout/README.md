@@ -46,6 +46,10 @@ Windows Electron's `data-windows-titlebar` marker reserves the caption height ab
 
 The root publishes `--dsh-frame-top-clearance` for the reserved strip (48px on macOS, the caption height on Windows), and `--dsh-frame-overlay-top` adds 20px for dialogs and menus. Native fullscreen reduces the overlay inset to 20px; dialogs retain their own 24px minimum. `--dsh-frame-chrome-top` excludes the Windows caption from modal mask painting and becomes zero in fullscreen. The full-viewport modal layer still blocks background clicks. Plain browser documents publish none of these values.
 
+### Regional font projection
+
+The presenter maps `ThemeSnapshot.resolvedFonts` to `--dsh-font-family-text-resolved`, `--dsh-font-family-content-resolved`, `--dsh-font-family-code-resolved`, and `--dsh-font-family-terminal-resolved` on `body`. It records the selected region in `data-dsh-cjk-glyph-region` and removes these writes on disposal. Font selection belongs to ui-theme; layout applies the result without its own language classifier.
+
 ### Theme presentation
 
 The presenter consumes resolved theme snapshots and projects them onto the document: `html { color-scheme }` for native UA chrome, `body[data-ds-dark-theme]` from the active color scheme, the theme's alias tokens, `--dsh-content-font-size`, `--dsh-code-font-size`, `--dsh-terminal-font-size`, and each non-empty `--dsh-font-family-<role>` list as inline variables on body, and one owned `<meta name="theme-color">` whose content follows the computed body background. Disposing the presenter removes its metadata node with its other global writes.

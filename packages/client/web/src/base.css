@@ -17,16 +17,13 @@ html {
 body {
   font-family: var(
     --dsw-font-family,
-    -apple-system,
+    var(--dsh-font-family-text-resolved, -apple-system,
     BlinkMacSystemFont,
     'Segoe UI',
-    'PingFang SC',
-    'Hiragino Sans GB',
-    'Microsoft YaHei',
     'Helvetica Neue',
     Helvetica,
     Arial,
-    sans-serif
+    sans-serif)
   );
   /* Grayscale antialiasing over subpixel rendering: WebKit/Blink and the
      Firefox macOS equivalent; other engines ignore both lines. */

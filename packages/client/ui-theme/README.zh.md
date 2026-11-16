@@ -39,6 +39,15 @@ Desktop 的固定快捷键 `Cmd`/`Ctrl` + `+`（或 `=`）和 `Cmd`/`Ctrl` + `-`
 
 三行分别独立设置正文字体（界面与会话正文）、代码字体（代码块、行内代码及其他使用 `--ds-font-family-code` 的文本）与侧栏终端字体。每个输入框接受逗号分隔的字体名，失焦或按 Enter 时提交；清空输入框即恢复内置字体栈。服务会规范化每个列表：去掉引号、反斜杠、尖括号与控制字符，并给 CSS 通用字体族以外的名称加双引号，然后存入 `textFontFamily`、`codeFontFamily` 或 `terminalFontFamily`。用户列表排在该类内置字体栈之前，因此本机缺少的字体会回退到默认字体。输入框接受任何已安装字体的名称，但不枚举本地字体。
 
+<a id="cjk-character-forms"></a>
+### 中日韩字形
+
+展开字体设置后，**中日韩字形**菜单将 `cjkGlyphRegion` 保存为 `auto`、`ja`、`zh-Hans`、`zh-Hant` 或 `ko`。没有该字段的既有设置按 `auto` 读取。这项选择决定回退字体；用户指定的正文、代码或终端字体始终排在前面。
+
+中日韩界面的控件跟随界面语言。英语等非中日韩界面的控件使用手动选择的地区；自动模式则使用 `navigator.languages` 中的首个中日韩语言。未标注内容在手动模式下跟随所选地区；自动模式依次采用中日韩界面语言、浏览器首个中日韩语言和平台默认字体。例如，中文界面选择日文字形后，中文控件保留简体字形，未标注内容采用日文字形。
+
+`ThemeSnapshot.resolvedFonts` 提供完全展开的 `interfaceText`、`contentText`、`code` 和 `terminal` 字体列表。启动脚本与运行时服务共用 `font-policy.ts`；界面语言或浏览器语言改变时会发布新列表。布局呈现器应用 DOM 变量，画布消费者直接使用展开后的列表。内容自身的语言属性与日文正文的字形提示见 [ui-primitives](../ui-primitives/README.zh.md#content-language-and-font-hints)。
+
 ### 注册主题
 
 组合可以通过 `ctx.theme` 注册带别名 token 覆盖的第三方主题 id；覆盖层按注册顺序折入活动快照的 token 中。主题还可以替换产品图标：`ThemeDefinition.icons` 把 ui-primitives `ICON_SYMBOLS` 的 id 映射到完整的 SVG 文档。插件在 `body` 开头保留一个隐藏的图标 sprite，其 `<symbol>` 子元素采用活动主题的替换项，缺省时回退到默认值，因此替换图形可以是多色的，并可使用跟随调色板的 `currentColor` 或 `--dsw-*` 变量绘制。替换标记与注册它的插件代码同等受信任。`register` 会拒绝未知 id、根元素不是带 `viewBox` 且格式正确的 SVG 命名空间 `<svg>` 的文档、会作用于整个文档的 `<style>` 或 `<script>` 元素，以及不以 `<symbol id>-` 开头的元素 id。根元素的 `width`、`height`、`class` 和 `aria-hidden` 会被忽略，因为图标尺寸由使用处决定。渐变及其他绘制服务器在 sprite 中解析其色标，因此会跟随调色板 token，但不跟随使用处的颜色覆盖。移除其中一个绝不会覆盖最后一个持久化的内置偏好。第三方主题 id 仍是进程内扩展，不会跨越内置 settings schema。

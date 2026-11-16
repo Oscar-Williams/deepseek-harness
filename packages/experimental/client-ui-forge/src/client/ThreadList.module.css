@@ -15,7 +15,7 @@
   background: var(--forge-changes-bg, var(--dsw-alias-bg-base));
   color: var(--dsw-alias-label-primary);
   font: var(--dsw-font-xs-13);
-  font-family: Inter, var(--dsw-font-family);
+  font-family: var(--dsw-font-family);
 }
 
 .pane:focus { outline: none; }

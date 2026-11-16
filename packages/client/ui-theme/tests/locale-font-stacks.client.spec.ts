@@ -1,10 +1,10 @@
-import { readFileSync } from 'node:fs'
 import { expect, it } from 'vitest'
+import { regionalFontCss } from '../src/font-policy.ts'
 
-const styles = readFileSync(new URL('../src/styles/base.css', import.meta.url), 'utf8')
+const styles = regionalFontCss().replace(':root{', '').replaceAll(';', ';\n')
 
 function families(token: string): string[] {
-  const declaration = new RegExp('^\\s*' + token + ':\\s*([^;]+);', 'm').exec(styles)
+  const declaration = new RegExp('^\\s*' + token + ':\\s*([^;}]+)[;}]', 'm').exec(styles)
   return declaration?.[1]?.split(',').map(face => face.trim().replace(/^['"]|['"]$/g, '')) ?? []
 }
 

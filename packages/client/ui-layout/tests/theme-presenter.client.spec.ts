@@ -3,6 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { FontFamilies, ThemePreference, ThemeSnapshot } from '@deepseek-ai/dsh-client-ui-theme/client'
 import { fontFamilyVariable } from '@deepseek-ai/dsh-client-ui-theme/src/theme-settings.ts'
+import { resolveFontFamilies } from '@deepseek-ai/dsh-client-ui-theme/src/font-policy.ts'
 import { DARK_ATTRIBUTE, THEME_SOURCE_ATTRIBUTE, ThemePresenter } from '@deepseek-ai/dsh-client-ui-layout/src/client/theme-presenter.ts'
 
 const LIGHT_THEME_COLOR = 'rgb(255, 255, 255)'
@@ -17,7 +18,8 @@ function snapshot(
 ): ThemeSnapshot {
   // The presenter must key off colorScheme, not the id — keep them distinct.
   const active = { id: `${colorScheme}-test`, colorScheme, tokens }
-  return { preference, fontSizes: { text: fontSize, code: 11, terminal: 13 }, fontFamilies, active, themes: [active], revision: 1 }
+  return { preference, fontSizes: { text: fontSize, code: 11, terminal: 13 }, fontFamilies, active, themes: [active], revision: 1,
+    cjkGlyphRegion: 'auto', resolvedFonts: resolveFontFamilies('auto', 'en', [], fontFamilies) }
 }
 
 function clearThemePresentation(): void {

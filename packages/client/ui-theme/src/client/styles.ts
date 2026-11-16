@@ -7,11 +7,13 @@ import onboarding from '../styles/onboarding.css?inline'
 import scrollbar from '../styles/scrollbar.css?inline'
 import gradientShadowText from '../styles/gradient-shadow-text.css?inline'
 import shiki from '../styles/shiki.css?inline'
+import { regionalFontCss } from '../font-policy.ts'
 
 const PLUGIN_ID = '@deepseek-ai/dsh-client-ui-theme'
 const HAIRLINE_WIDTH = '--dsh-hairline-width'
 
 const STYLES = [
+  ['regional-fonts.css', regionalFontCss()],
   ['base.css', base],
   ['corner-shape.css', cornerShape],
   ['design-platform.css', designPlatform],

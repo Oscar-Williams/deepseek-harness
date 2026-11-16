@@ -11,6 +11,7 @@
   display: grid;
   place-items: center;
   background: var(--dsw-alias-bg-base, var(--dsh-boot-bg, Canvas));
+  font-family: var(--dsh-font-family-text-resolved, system-ui, sans-serif);
 }
 
 .boot:lang(ja) {
@@ -93,15 +94,14 @@
 .failedItem {
   font-family: var(
     --ds-font-family-code,
-    'SF Mono',
+    var(--dsh-font-family-code-resolved, 'SF Mono',
     'JetBrains Mono',
     'Fira Code',
     Consolas,
     'Liberation Mono',
     Menlo,
     Courier,
-    'PingFang SC',
-    'Microsoft YaHei'
+    monospace)
   );
   font-size: 12px;
   line-height: 18px;

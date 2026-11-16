@@ -22,6 +22,9 @@ afterEach(cleanup)
 
 const COPY: Record<string, string> = {
   'fontSize.more': 'More font settings',
+  'cjk.title': 'CJK character forms',
+  'cjk.auto': 'Automatic',
+  'cjk.ja': 'Japanese',
   'fontSize.text.title': 'Font size',
   'fontFamily.code.title': 'Code font',
   'fontFamily.terminal.title': 'Terminal font',
@@ -51,6 +54,7 @@ function mount() {
   store.actions.sync({ text: 14, code: 11, terminal: 13 }, { text: '', code: '"Iosevka"', terminal: '' }, 0)
   const setFontFamily = vi.fn()
   const setFontSize = vi.fn()
+  const setCjkGlyphRegion = vi.fn()
   const props: FontSettingsGroupProps = {
     useSessions: emptySessions(),
     useSessionStatus,
@@ -63,12 +67,21 @@ function mount() {
     t: (key: string) => COPY[key] ?? key,
     setFontFamily,
     setFontSize,
+    setCjkGlyphRegion,
   }
   render(<FontSettingsGroup {...props} />)
-  return { setFontFamily, setFontSize, header: screen.getByRole('button', { name: 'More font settings' }) }
+  return { setFontFamily, setFontSize, setCjkGlyphRegion, header: screen.getByRole('button', { name: 'More font settings' }) }
 }
 
 describe('FontSettingsGroup', () => {
+  it('offers a regional preference independently of the custom font fields', () => {
+    const g = mount()
+    fireEvent.click(g.header)
+    fireEvent.click(screen.getByRole('button', { name: 'CJK character forms' }))
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Japanese' }))
+    expect(g.setCjkGlyphRegion).toHaveBeenCalledWith('ja')
+    expect(g.setFontFamily).not.toHaveBeenCalled()
+  })
   it('starts collapsed and toggles the font rows from the font-size row', () => {
     const g = mount()
     expect(screen.getByText('Font size')).toBeDefined()

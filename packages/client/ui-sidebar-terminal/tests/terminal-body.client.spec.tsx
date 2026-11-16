@@ -2,7 +2,8 @@
 /** Terminal startup, title editing and xterm's screen lifetime. */
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
-import { useSyncExternalStore, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
+import { resolveFontFamilies } from '@deepseek-ai/dsh-client-ui-theme/src/font-policy.ts'
 import type { ITheme } from '@xterm/xterm'
 import type { ThemeSnapshot } from '@deepseek-ai/dsh-client-ui-theme/client'
 import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
@@ -73,13 +74,9 @@ function mount(initial: TerminalViewState | undefined = idle, dictionary = en) {
   let state: TerminalViewState | undefined = initial
   let visible = true
   let locale = 'en'
-  const localeListeners = new Set<() => void>()
-  const readLocale = () => locale
-  const subscribeLocale = (listener: () => void) => {
-    localeListeners.add(listener)
-    return () => { localeListeners.delete(listener) }
-  }
   let theme: ThemeSnapshot = {
+    cjkGlyphRegion: 'auto',
+    resolvedFonts: resolveFontFamilies('auto', locale, [], { text: '', code: '', terminal: '' }),
     preference: 'light', fontSizes: { text: 14, code: 11, terminal: 13 }, fontFamilies: { text: '', code: '', terminal: '' },
     active: { id: 'light', colorScheme: 'light', tokens: {} }, themes: [], revision: 0,
   }
@@ -95,7 +92,6 @@ function mount(initial: TerminalViewState | undefined = idle, dictionary = en) {
     view: () => model,
     useTerminal: (_key: string, select?: (value: TerminalViewState | undefined) => unknown) => select === undefined ? state : select(state),
     useTheme: (select: (value: ThemeSnapshot) => unknown) => select(theme),
-    useLocale: (select: (value: string) => unknown) => select(useSyncExternalStore(subscribeLocale, readLocale)),
     useTabInfo: tab, t: makeTranslate(dictionary),
   } as unknown as TerminalBodyProps
   const view = render(<TerminalBody {...props} />)
@@ -104,11 +100,14 @@ function mount(initial: TerminalViewState | undefined = idle, dictionary = en) {
     changeLocale(next: string) {
       act(() => {
         locale = next
-        for (const listener of localeListeners) listener()
+        const resolvedFonts = resolveFontFamilies(theme.cjkGlyphRegion, locale, [], theme.fontFamilies)
+        theme = { ...theme, resolvedFonts, revision: theme.revision + 1 }
+        view.rerender(<TerminalBody {...props} />)
       })
     },
     changeTheme(next: Partial<ThemeSnapshot> = {}) {
       theme = { ...theme, ...next, revision: theme.revision + 1 }
+      theme = { ...theme, resolvedFonts: resolveFontFamilies(theme.cjkGlyphRegion, locale, [], theme.fontFamilies) }
       view.rerender(<TerminalBody {...props} />)
     },
     update(next: TerminalViewState | undefined, shown = visible) {

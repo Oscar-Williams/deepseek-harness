@@ -46,6 +46,10 @@ Windows Electron 的 `data-windows-titlebar` 标记在所有列上方预留顶�
 
 根元素通过 `--dsh-frame-top-clearance` 发布顶栏占用量（macOS 为 48px，Windows 为标题栏高度），通过 `--dsh-frame-overlay-top` 为弹窗和菜单再留出 20px。原生全屏时浮层起点降为 20px；弹窗仍保留自身 24px 的最小边距。`--dsh-frame-chrome-top` 让模态遮罩不绘制 Windows 顶栏区域，全屏时归零。覆盖整个视口的模态层仍阻挡背景点击。普通浏览器文档不发布这些值。
 
+### 地区字体的投影
+
+呈现器把 `ThemeSnapshot.resolvedFonts` 映射到 `body` 上的 `--dsh-font-family-text-resolved`、`--dsh-font-family-content-resolved`、`--dsh-font-family-code-resolved` 和 `--dsh-font-family-terminal-resolved`。所选地区记录在 `data-dsh-cjk-glyph-region`，这些写入会在资源释放时移除。字体选择由 ui-theme 负责，布局直接应用结果。
+
 ### 主题呈现
 
 呈现器消费解析后的主题快照，并投影到 document：`html { color-scheme }` 驱动原生 UA 控件，依据当前配色方案设置 `body[data-ds-dark-theme]`，把主题的别名 token、`--dsh-content-font-size`、`--dsh-code-font-size`、`--dsh-terminal-font-size` 以及每个非空的 `--dsh-font-family-<role>` 列表设为 body 上的内联变量，并持有一个 `<meta name="theme-color">`，其内容随计算后的 body 背景色更新。对呈现器执行 dispose（资源释放）时，它会连同其他全局写入一起移除自己的元数据节点。

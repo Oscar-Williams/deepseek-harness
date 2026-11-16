@@ -10,11 +10,15 @@ import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
 import type { FontRole } from '../theme-settings.ts'
 import type { createFontRowStore } from './settings-store.ts'
 import { FontFamilyRow } from './FontFamilyRow.tsx'
+import { CjkFontRow } from './CjkFontRow.tsx'
+import type { CjkGlyphRegion } from '../font-policy.ts'
 import { FontSizeRow, type FontSizeRowExpander } from './FontSizeRow.tsx'
 import css from './FontSettingsGroup.module.css'
 
 /** Injected business face: font writes by role. */
 export interface FontSettingsInjected {
+  /** Save the region for unmarked content. */
+  setCjkGlyphRegion: (region: CjkGlyphRegion) => void
   /** Change one role's font list (normalized by the theme service). */
   setFontFamily: (role: FontRole, value: string) => void
   /** Change one role's font size (integer px within its FONT_SIZE_SPECS range). */
@@ -31,7 +35,7 @@ export type FontSettingsGroupProps =
  * @param props - composed slot props.
  * @returns the text size row and, when expanded, the font rows.
  */
-export function FontSettingsGroup({ setFontFamily, setFontSize, ...shared }: FontSettingsGroupProps) {
+export function FontSettingsGroup({ setFontFamily, setFontSize, setCjkGlyphRegion, ...shared }: FontSettingsGroupProps) {
   const [open, setOpen] = useState(false)
   const regionId = useId()
   const family = (role: FontRole) => (
@@ -46,6 +50,7 @@ export function FontSettingsGroup({ setFontFamily, setFontSize, ...shared }: Fon
       {open && (
         <div id={regionId}>
           {family('text')}
+          <CjkFontRow {...shared} setCjkGlyphRegion={setCjkGlyphRegion} />
           {family('code')}
           {size('code')}
           {family('terminal')}

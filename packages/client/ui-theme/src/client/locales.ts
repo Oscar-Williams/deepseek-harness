@@ -2,6 +2,13 @@
 
 /** Simplified Chinese dictionary (the key-set source of truth). */
 export const zh = {
+  'cjk.title': 'CJK 字形',
+  'cjk.description': '选择未标注语种的正文、代码和终端使用的字形。界面控件继续跟随界面语言',
+  'cjk.auto': '自动',
+  'cjk.ja': '日文',
+  'cjk.zh-Hans': '简体中文',
+  'cjk.zh-Hant': '繁体中文',
+  'cjk.ko': '韩文',
   'appearance.title': '外观',
   'appearance.light': '浅色',
   'appearance.dark': '深色',
@@ -34,6 +41,13 @@ export type ThemeKey = keyof typeof zh
 
 /** English dictionary, checked complete against the zh key set. */
 export const en = {
+  'cjk.title': 'CJK character forms',
+  'cjk.description': 'Choose character forms for unmarked text, code and terminals. CJK interface controls follow the interface language.',
+  'cjk.auto': 'Automatic',
+  'cjk.ja': 'Japanese',
+  'cjk.zh-Hans': 'Simplified Chinese',
+  'cjk.zh-Hant': 'Traditional Chinese',
+  'cjk.ko': 'Korean',
   'appearance.title': 'Appearance',
   'appearance.light': 'Light',
   'appearance.dark': 'Dark',
@@ -63,6 +77,13 @@ export const en = {
 
 /** Japanese copy, checked against the English keys. */
 export const ja = {
+  'cjk.title': '漢字の字形',
+  'cjk.description': '言語指定のない文章・コード・ターミナルで使う字形を選びます。画面の表示言語は変わりません。',
+  'cjk.auto': '自動',
+  'cjk.ja': '日本語',
+  'cjk.zh-Hans': '簡体字中国語',
+  'cjk.zh-Hant': '繁体字中国語',
+  'cjk.ko': '韓国語',
   'appearance.title': '外観',
   'appearance.light': 'ライト',
   'appearance.dark': 'ダーク',
@@ -81,17 +102,24 @@ export const ja = {
   'fontSize.terminal.decrease': 'ターミナルのフォントサイズを小さくする',
   'fontSize.unit': 'px',
   'fontFamily.text.title': 'テキストフォント',
-  'fontFamily.text.description': 'インターフェースと会話テキストに使用します。フォントはカンマで区切ります。空欄の場合はデフォルトを使用',
+  'fontFamily.text.description': '画面と会話本文に使用します。複数のフォント名はカンマで区切ります。空欄の場合は標準のフォントを使います。',
   'fontFamily.code.title': 'コードフォント',
-  'fontFamily.code.description': 'コードブロック、インラインコード、ツール出力に使用します。フォントはカンマで区切ります。空欄の場合はデフォルトを使用',
+  'fontFamily.code.description': 'コードブロック・行内コード・ツール出力に使用します。複数のフォント名はカンマで区切ります。空欄の場合は標準のフォントを使います。',
   'fontFamily.terminal.title': 'ターミナルフォント',
-  'fontFamily.terminal.description': 'サイドバーのターミナルに使用します。フォントはカンマで区切ります。空欄の場合はデフォルトを使用',
-  'fontFamily.placeholder': 'デフォルト',
+  'fontFamily.terminal.description': 'サイドバーのターミナルに使用します。複数のフォント名はカンマで区切ります。空欄の場合は標準のフォントを使います。',
+  'fontFamily.placeholder': '標準のフォント',
   'fontSize.more': 'その他のフォント設定',
 } satisfies Record<keyof typeof en, string>
 
 /** Spanish dictionary, checked against the English keys. */
 export const es = {
+  'cjk.title': 'Formas de caracteres CJK',
+  'cjk.description': 'Elige las formas para texto, código y terminales sin idioma indicado. Los controles siguen el idioma de la interfaz.',
+  'cjk.auto': 'Automático',
+  'cjk.ja': 'Japonés',
+  'cjk.zh-Hans': 'Chino simplificado',
+  'cjk.zh-Hant': 'Chino tradicional',
+  'cjk.ko': 'Coreano',
   'appearance.title': 'Apariencia',
   'appearance.light': 'Claro',
   'appearance.dark': 'Oscuro',
@@ -121,6 +149,13 @@ export const es = {
 
 /** French dictionary, checked against the English keys. */
 export const fr = {
+  'cjk.title': 'Formes des caractères CJK',
+  'cjk.description': 'Choisissez les formes du texte, du code et du terminal sans langue indiquée. Les commandes suivent la langue de l’interface.',
+  'cjk.auto': 'Automatique',
+  'cjk.ja': 'Japonais',
+  'cjk.zh-Hans': 'Chinois simplifié',
+  'cjk.zh-Hant': 'Chinois traditionnel',
+  'cjk.ko': 'Coréen',
   'appearance.title': 'Apparence',
   'appearance.light': 'Clair',
   'appearance.dark': 'Sombre',
@@ -150,6 +185,13 @@ export const fr = {
 
 /** German dictionary, checked against the English keys. */
 export const de = {
+  'cjk.title': 'CJK-Zeichenformen',
+  'cjk.description': 'Zeichenformen für Text, Code und Terminals ohne Sprachangabe. Bedienelemente folgen der Oberflächensprache.',
+  'cjk.auto': 'Automatisch',
+  'cjk.ja': 'Japanisch',
+  'cjk.zh-Hans': 'Chinesisch (vereinfacht)',
+  'cjk.zh-Hant': 'Chinesisch (traditionell)',
+  'cjk.ko': 'Koreanisch',
   'appearance.title': 'Aussehen',
   'appearance.light': 'Hell',
   'appearance.dark': 'Dunkel',
@@ -179,6 +221,13 @@ export const de = {
 
 /** Russian dictionary, checked against the English keys. */
 export const ru = {
+  'cjk.title': 'Формы символов CJK',
+  'cjk.description': 'Формы символов для текста, кода и терминала без указания языка. Элементы интерфейса следуют его языку.',
+  'cjk.auto': 'Автоматически',
+  'cjk.ja': 'Японский',
+  'cjk.zh-Hans': 'Упрощённый китайский',
+  'cjk.zh-Hant': 'Традиционный китайский',
+  'cjk.ko': 'Корейский',
   'appearance.title': 'Внешний вид',
   'appearance.light': 'Светлая',
   'appearance.dark': 'Тёмная',
@@ -208,6 +257,13 @@ export const ru = {
 
 /** Portuguese dictionary, checked against the English keys. */
 export const pt = {
+  'cjk.title': 'Formas de caracteres CJK',
+  'cjk.description': 'Escolha as formas para texto, código e terminal sem idioma indicado. Os controles seguem o idioma da interface.',
+  'cjk.auto': 'Automático',
+  'cjk.ja': 'Japonês',
+  'cjk.zh-Hans': 'Chinês simplificado',
+  'cjk.zh-Hant': 'Chinês tradicional',
+  'cjk.ko': 'Coreano',
   'appearance.title': 'Aparência',
   'appearance.light': 'Claro',
   'appearance.dark': 'Escuro',

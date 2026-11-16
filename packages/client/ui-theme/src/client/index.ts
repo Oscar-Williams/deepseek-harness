@@ -27,6 +27,7 @@ import { createAppearanceRowStore, createFontRowStore } from './settings-store.t
 import { ICON_SYMBOLS, type IconSymbolId } from '@deepseek-ai/dsh-client-ui-primitives'
 import { installIconSprite, type IconReplacements } from './icon-sprite.ts'
 import { installThemeStyles } from './styles.ts'
+import { CJK_GLYPH_REGIONS, resolveFontFamilies, type CjkGlyphRegion, type ResolvedFonts } from '../font-policy.ts'
 import { en, ja, es, fr, de, ru, pt, zh, type ThemeKey } from './locales.ts'
 import {
   DEFAULT_FONT_SIZES, DEFAULT_PREFERENCE, FONT_FAMILY_FIELDS, FONT_ROLES, FONT_SIZE_SPECS,
@@ -40,6 +41,7 @@ export type { FontSettingsGroupProps, FontSettingsInjected } from './FontSetting
 export type { AppearanceRowState, FontRowState } from './settings-store.ts'
 export type { ThemeKey } from './locales.ts'
 export type { FontFamilies, FontRole, FontSizes, ThemePreference, ThemeSettings } from '../theme-settings.ts'
+export type { CjkGlyphRegion, ResolvedFonts } from '../font-policy.ts'
 
 /** Namespace owning this feature's settings-row copy. */
 export const SETTINGS_NS = 'settings.theme'
@@ -98,6 +100,10 @@ export interface ThemeDefinition {
 
 /** Immutable theme state published on every change. */
 export interface ThemeSnapshot {
+  /** Persisted content region; automatic selection follows locale and browser preferences. */
+  readonly cjkGlyphRegion: CjkGlyphRegion
+  /** Expanded families shared by document and canvas consumers. */
+  readonly resolvedFonts: ResolvedFonts
   /** The persisted preference (may be `system`). */
   preference: ThemePreference
   /** Integer px font sizes by role, each within its `FONT_SIZE_SPECS` range (`text` is the conversation content size). */
@@ -185,6 +191,7 @@ export class ThemeRuntime {
   private preference: ThemePreference
   private fontSizes: FontSizes = bootstrapFontSizes()
   private fontFamilies: FontFamilies = bootstrapFontFamilies()
+  private cjkGlyphRegion: CjkGlyphRegion = bootstrapCjkRegion()
   private revision = 0
   /** Own settings writes not yet settled; adoption waits for zero so a Host echo of an earlier write cannot revert a later local change. */
   private pendingWrites = 0
@@ -206,6 +213,17 @@ export class ThemeRuntime {
     // Non-browser runs (node e2e booting the client tree) have no matchMedia.
     this.media = typeof matchMedia === 'undefined' ? undefined : matchMedia('(prefers-color-scheme: dark)')
     this.snapshot = this.buildSnapshot()
+    const fontEnvironmentChanged = (): void => {
+      const fonts = this.resolveFonts()
+      const previous = this.snapshot.resolvedFonts
+      if (fonts.interfaceText !== previous.interfaceText || fonts.contentText !== previous.contentText
+        || fonts.code !== previous.code || fonts.terminal !== previous.terminal) this.publish()
+    }
+    if (ctx.locale !== undefined) ctx.effect(() => ctx.locale.subscribe(fontEnvironmentChanged), 'ui-theme: font locale')
+    if (typeof window !== 'undefined') ctx.effect(() => {
+      window.addEventListener('languagechange', fontEnvironmentChanged)
+      return () => { window.removeEventListener('languagechange', fontEnvironmentChanged) }
+    }, 'ui-theme: browser font language')
     if (this.media !== undefined) {
       const media = this.media
       const onChange = (): void => {
@@ -317,6 +335,17 @@ export class ThemeRuntime {
     this.publish()
   }
 
+  /**
+   * Save the region used by unmarked content and non-CJK interface fallbacks.
+   * @param region - one of the region choices offered by the settings schema.
+   */
+  setCjkGlyphRegion(region: CjkGlyphRegion): void {
+    if (this.cjkGlyphRegion === region) return
+    this.cjkGlyphRegion = region
+    this.write(() => this.host.set('cjkGlyphRegion', region))
+    this.publish()
+  }
+
   /** Queue one settings write, then adopt the durable section once no own write remains. */
   private write(operation: () => Promise<boolean>): void {
     this.pendingWrites += 1
@@ -334,8 +363,10 @@ export class ThemeRuntime {
     const fontFamilies = durableFontFamilies(section)
     const fontSizes = sectionFontSizes(section)
     if (this.preference === section.preference
+      && this.cjkGlyphRegion === (section.cjkGlyphRegion ?? 'auto')
       && FONT_ROLES.every(role => this.fontSizes[role] === fontSizes[role] && this.fontFamilies[role] === fontFamilies[role])) return
     this.preference = section.preference
+    this.cjkGlyphRegion = section.cjkGlyphRegion ?? 'auto'
     this.fontSizes = fontSizes
     this.fontFamilies = fontFamilies
     this.publish()
@@ -409,6 +440,8 @@ export class ThemeRuntime {
       preference: this.preference,
       fontSizes: this.fontSizes,
       fontFamilies: this.fontFamilies,
+      cjkGlyphRegion: this.cjkGlyphRegion,
+      resolvedFonts: this.resolveFonts(),
       active: this.composeActive(active),
       themes: Object.freeze([...this.themes]),
       revision: this.revision,
@@ -432,11 +465,23 @@ export class ThemeRuntime {
     return Object.freeze({ ...active, tokens: Object.freeze(tokens) })
   }
 
+  private resolveFonts(): ResolvedFonts {
+    return resolveFontFamilies(this.cjkGlyphRegion,
+      this.ctx.locale?.getSnapshot().active ?? (typeof document === 'undefined' ? 'en' : document.documentElement.lang),
+      typeof window === 'undefined' ? [] : navigator.languages, this.fontFamilies)
+  }
+
   private publish(): void {
     this.revision += 1
     this.snapshot = this.buildSnapshot()
     this.ctx.emit('theme/change', this.snapshot)
   }
+}
+
+/** Preserve the Host boot content region while settings are loading. */
+function bootstrapCjkRegion(): CjkGlyphRegion {
+  const stored = typeof document === 'undefined' ? undefined : document.body.dataset.dshCjkGlyphRegion
+  return CJK_GLYPH_REGIONS.find(region => region === stored) ?? 'auto'
 }
 
 /** Preserve the Host boot palette while the settings scope is loading. */
@@ -615,7 +660,7 @@ export function apply(ctx: ClientContext): void {
   let fontBound: BoundActions<typeof fontStore> | undefined
   const sync = (snapshot: ThemeSnapshot): void => {
     bound?.sync(snapshot.preference, snapshot.revision)
-    fontBound?.sync(snapshot.fontSizes, snapshot.fontFamilies, snapshot.revision)
+    fontBound?.sync(snapshot.fontSizes, snapshot.fontFamilies, snapshot.revision, snapshot.cjkGlyphRegion)
   }
   ctx.on('theme/change', sync)
   const injected = (actions: BoundActions<typeof store>): AppearanceRowInjected => {
@@ -648,6 +693,7 @@ export function apply(ctx: ClientContext): void {
       return {
         setFontFamily: (role, value) => { theme.setFontFamily(role, value) },
         setFontSize: (role, px) => { theme.setFontSize(role, px) },
+        setCjkGlyphRegion: (region) => { theme.setCjkGlyphRegion(region) },
       }
     },
   }, FontSettingsGroup))

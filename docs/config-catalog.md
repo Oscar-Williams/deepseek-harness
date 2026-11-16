@@ -732,11 +732,13 @@ export interface Config {
 ## `@deepseek-ai/dsh-client-ui-theme`
 
 - `refs`: `Volatile` (`@deepseek-ai/cordis`)
-- `source`: [`packages/client/ui-theme/src/index.ts:20`](../packages/client/ui-theme/src/index.ts)
+- `source`: [`packages/client/ui-theme/src/index.ts:21`](../packages/client/ui-theme/src/index.ts)
 
 ```ts config-catalog
 /** Runtime preferences projected to the browser. */
 export interface Config {
+  /** Region for unmarked content, independent of CJK interface controls. */
+  cjkGlyphRegion: Volatile<CjkGlyphRegion>
   /** Browser palette preference. */
   preference: Volatile<ThemePreference>
   /** Browser font size in pixels. */
@@ -752,6 +754,9 @@ export interface Config {
   /** Sidebar terminal font list; `''` keeps the built-in stack. */
   terminalFontFamily: Volatile<string>
 }
+
+/** A persisted region, or automatic selection from UI and browser languages. */
+export type CjkGlyphRegion = typeof CJK_GLYPH_REGIONS[number]
 
 /** Theme preference persisted by the product Appearance row. */
 export type ThemePreference = typeof THEME_PREFERENCES[number]

@@ -10,7 +10,7 @@
   background: var(--dsw-alias-bg-layer-1);
   color: var(--dsw-alias-label-primary);
   font: var(--dsw-font-xs-13);
-  font-family: Inter, var(--dsw-font-family);
+  font-family: var(--dsw-font-family);
   white-space: normal;
 }
 
@@ -295,7 +295,7 @@
 .originalNote {
   padding: 8px 10px;
   color: var(--dsw-alias-label-secondary);
-  font-family: Inter, var(--dsw-font-family);
+  font-family: var(--dsw-font-family);
 }
 
 /* Outdated threads of one file, after its lines. */
@@ -312,7 +312,7 @@
   padding: 0 12px;
   color: var(--dsw-alias-label-secondary);
   font: var(--dsw-font-xs-13);
-  font-family: Inter, var(--dsw-font-family);
+  font-family: var(--dsw-font-family);
 }
 
 /* A changes view narrower than 480px gives the code more width; the query names no container, since CSS Modules rename

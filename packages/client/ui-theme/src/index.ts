@@ -3,6 +3,7 @@ import type {} from '@deepseek-ai/dsh-settings'
 
 import type { Volatile } from '@deepseek-ai/cordis'
 import type { ThemePreference } from './theme-settings.ts'
+import { CJK_GLYPH_REGIONS, type CjkGlyphRegion } from './font-policy.ts'
 import z from '@deepseek-ai/schemastery'
 
 import type { Context } from '@deepseek-ai/cordis'
@@ -18,6 +19,8 @@ export {
 
 /** Runtime preferences projected to the browser. */
 export interface Config {
+  /** Region for unmarked content, independent of CJK interface controls. */
+  cjkGlyphRegion: Volatile<CjkGlyphRegion>
   /** Browser palette preference. */
   preference: Volatile<ThemePreference>
   /** Browser font size in pixels. */
@@ -36,6 +39,7 @@ export interface Config {
 
 /** Live theme and typography preferences. */
 export const Config = z.object({
+  cjkGlyphRegion: z.union([...CJK_GLYPH_REGIONS]).default('auto').volatile(),
   preference: z.union([...THEME_PREFERENCES]).default(DEFAULT_PREFERENCE).volatile(),
   fontSize: fontSizeSchema(FONT_SIZE_SPECS.text).volatile(),
   codeFontSize: fontSizeSchema(FONT_SIZE_SPECS.code).volatile(),
@@ -60,6 +64,6 @@ export function apply(ctx: Context, config: Config): void {
       text: config.textFontFamily.get(),
       code: config.codeFontFamily.get(),
       terminal: config.terminalFontFamily.get(),
-    }))
+    }, config.cjkGlyphRegion.get()))
   }, { prepend: true })
 }

@@ -44,6 +44,13 @@ const FONT_FAMILY_VARIABLES = {
   terminal: '--dsh-font-family-terminal',
 } as const satisfies Record<FontRole, string>
 
+const RESOLVED_FONT_VARIABLES = {
+  interfaceText: '--dsh-font-family-text-resolved',
+  contentText: '--dsh-font-family-content-resolved',
+  code: '--dsh-font-family-code-resolved',
+  terminal: '--dsh-font-family-terminal-resolved',
+} as const
+
 /** Applies theme snapshots to the document; one instance per plugin fiber. */
 export class ThemePresenter {
   /** Token names this presenter wrote in the last apply (its retraction set). */
@@ -72,6 +79,10 @@ export class ThemePresenter {
     document.documentElement.setAttribute(THEME_SOURCE_ATTRIBUTE,
       snapshot.preference === 'system' ? 'system' : scheme)
     const body = document.body
+    body.dataset.dshCjkGlyphRegion = snapshot.cjkGlyphRegion
+    for (const [role, name] of Object.entries(RESOLVED_FONT_VARIABLES)) {
+      body.style.setProperty(name, snapshot.resolvedFonts[role as keyof typeof RESOLVED_FONT_VARIABLES])
+    }
     if (scheme === 'dark') body.setAttribute(DARK_ATTRIBUTE, '')
     else body.removeAttribute(DARK_ATTRIBUTE)
     for (const [role, name] of Object.entries(FONT_SIZE_VARIABLES)) {
@@ -101,6 +112,8 @@ export class ThemePresenter {
     document.documentElement.removeAttribute(THEME_SOURCE_ATTRIBUTE)
     const body = document.body
     body.removeAttribute(DARK_ATTRIBUTE)
+    delete body.dataset.dshCjkGlyphRegion
+    for (const name of Object.values(RESOLVED_FONT_VARIABLES)) body.style.removeProperty(name)
     for (const name of Object.values(FONT_SIZE_VARIABLES)) body.style.removeProperty(name)
     for (const name of Object.values(FONT_FAMILY_VARIABLES)) body.style.removeProperty(name)
     for (const name of this.appliedTokens) body.style.removeProperty(name)

@@ -1,5 +1,5 @@
 /* Inline review forms use the same field, action, and badge treatments as settings and conversation controls. */
-.root, .thread { box-sizing: border-box; width: calc(100% - 20px); max-width: 680px; margin: 10px; padding: 12px; border: 0.5px solid var(--dsw-alias-border-l3); border-radius: var(--dsw-radius-md); background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-primary); font: var(--dsw-font-xs-13); font-family: Inter, var(--dsw-font-family); white-space: normal; }
+.root, .thread { box-sizing: border-box; width: calc(100% - 20px); max-width: 680px; margin: 10px; padding: 12px; border: 0.5px solid var(--dsw-alias-border-l3); border-radius: var(--dsw-radius-md); background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-primary); font: var(--dsw-font-xs-13); font-family: var(--dsw-font-family); white-space: normal; }
 .root { background: var(--dsw-alias-bg-layer-2); border-radius: var(--dsw-radius-lg); }
 .root:focus-within { border-color: var(--dsw-alias-border-l4); }
 /* Side by side, a comment fills its side's cell under the code instead of the row's width. */
