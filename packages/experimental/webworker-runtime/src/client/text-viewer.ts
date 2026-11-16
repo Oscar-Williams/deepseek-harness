@@ -48,7 +48,7 @@ const VIEWER_STYLE = `
     padding: 16px;
     overflow: auto;
     background: var(--dsw-alias-markdown-code-block, transparent);
-    font: 13px/20px ui-monospace, SFMono-Regular, Menlo, monospace;
+    font: 13px/20px var(--ds-font-family-code, ui-monospace, monospace);
     white-space: pre;
   }
 `

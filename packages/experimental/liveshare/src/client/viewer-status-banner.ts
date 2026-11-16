@@ -106,7 +106,7 @@ export function mountViewerStatusBanner(
     maxWidth: 'min(640px, calc(100vw - 32px))',
     padding: '12px 16px',
     borderRadius: '10px',
-    font: '13px/1.5 system-ui, sans-serif',
+    font: '13px/1.5 var(--dsw-font-family, system-ui, sans-serif)',
     textAlign: 'center',
     display: 'none',
   } satisfies Partial<CSSStyleDeclaration>)
