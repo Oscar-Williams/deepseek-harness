@@ -1,6 +1,11 @@
 Var InstallerProgressWindow
+Var InstallerFontFace
 
 Function InstallerGuiInit
+    StrCpy $InstallerFontFace "${INSTALLER_FONT}"
+    ${If} $LANGUAGE == 1041 ; Japanese (ja-JP)
+        StrCpy $InstallerFontFace "${INSTALLER_JAPANESE_FONT}"
+    ${EndIf}
     HideWindow
     System::Call 'user32::SetWindowLongW(p $HWNDPARENT, i -16, i 0x800A0000)'
     System::Call 'user32::GetDC(p $HWNDPARENT) p.r0'
@@ -62,7 +67,7 @@ Function InstallerProgressShow
         StrCpy $0 1
         StrCpy $1 "$PLUGINSDIR\brand-dark-2x.bmp"
     ${EndIf}
-    System::Call '$PLUGINSDIR\window-frame.dll::InstallerShowProgress(p $HWNDPARENT, p $mui.InstFilesPage.ProgressBar, i r0, i $InstallerDpi, i $InstallerControlHover, i $InstallerControlPressed, w r1, w "$(INSTALLER_NATIVE_PROGRESS)", w "$(INSTALLER_PROGRESS_EXTRACT)", w "$(INSTALLER_PROGRESS_COPY)", w "$(INSTALLER_PROGRESS_REGISTER)", w "$(INSTALLER_PROGRESS_CLEAN)") p.s ?c'
+    System::Call '$PLUGINSDIR\window-frame.dll::InstallerShowProgress(p $HWNDPARENT, p $mui.InstFilesPage.ProgressBar, i r0, i $InstallerDpi, i $InstallerControlHover, i $InstallerControlPressed, w r1, w "$(INSTALLER_NATIVE_PROGRESS)", w "$(INSTALLER_PROGRESS_EXTRACT)", w "$(INSTALLER_PROGRESS_COPY)", w "$(INSTALLER_PROGRESS_REGISTER)", w "$(INSTALLER_PROGRESS_CLEAN)", i $LANGUAGE) p.s ?c'
     Pop $InstallerProgressWindow
     ${If} $InstallerProgressWindow == 0
         MessageBox MB_OK|MB_ICONSTOP "$(INSTALLER_UI_ERROR)"

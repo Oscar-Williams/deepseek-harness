@@ -26,6 +26,7 @@ static HRESULT ApplyInstallerDwmFrame(HWND window) {
     return result;
 }
 
+#include "installer-font.h"
 #include "restart-banner.h"
 #include "restart-status.h"
 #include "progress.h"
@@ -129,6 +130,7 @@ struct ProgressPage {
     InstallProgress progress{GetTickCount64()};
     bool dark;
     UINT dpi;
+    LANGID language;
     ULONG_PTR gdiplus;
     Image* brand;
     Bitmap* buffer;
@@ -185,8 +187,8 @@ static void PaintCaptionButtons(Graphics& graphics, const ProgressPage& page) {
     SolidBrush background(page.dark ? Color(255, 21, 21, 23) : Color(255, 255, 255, 255));
     graphics.FillRectangle(&background, 504, 0, 96, 48);
     SolidBrush ink(page.dark ? Color(255, 255, 255, 255) : Color(255, 15, 17, 21));
-    FontFamily family(L"Microsoft YaHei UI");
-    Font font(&family, 16, FontStyleRegular, UnitPixel);
+    FontFamily family(InstallerFontName(page.language));
+    Font font(family.GetLastStatus() == Ok ? &family : FontFamily::GenericSansSerif(), 16, FontStyleRegular, UnitPixel);
     StringFormat centered;
     centered.SetAlignment(StringAlignmentCenter);
     centered.SetLineAlignment(StringAlignmentCenter);
@@ -292,8 +294,8 @@ static LRESULT CALLBACK ProgressProc(HWND window, UINT message, WPARAM wparam, L
             SolidBrush ink(page->dark ? Color(255, 255, 255, 255) : Color(255, 15, 17, 21));
             FillProgress(graphics, track, 472.0f);
             FillProgress(graphics, ink, 472.0f * static_cast<REAL>(page->progress.value) / 100);
-            FontFamily family(L"Microsoft YaHei UI");
-            Font font(&family, 14, FontStyleRegular, UnitPixel);
+            FontFamily family(InstallerFontName(page->language));
+            Font font(family.GetLastStatus() == Ok ? &family : FontFamily::GenericSansSerif(), 14, FontStyleRegular, UnitPixel);
             StringFormat centered;
             centered.SetAlignment(StringAlignmentCenter);
             centered.SetLineAlignment(StringAlignmentCenter);
@@ -320,7 +322,7 @@ static LRESULT CALLBACK ProgressProc(HWND window, UINT message, WPARAM wparam, L
 // Caption colors are opaque ARGB from NSIS; failure preserves the stock page's visibility.
 extern "C" __declspec(dllexport) HWND __cdecl InstallerShowProgress(HWND parent, HWND source,
         BOOL dark, UINT dpi, ARGB controlHover, ARGB controlPressed, const WCHAR* brand, const WCHAR* preparing, const WCHAR* extracting,
-        const WCHAR* copying, const WCHAR* registering, const WCHAR* cleaning) {
+        const WCHAR* copying, const WCHAR* registering, const WCHAR* cleaning, UINT language) {
     HINSTANCE module = GetModuleHandleW(nullptr);
     WNDCLASSW type = {};
     type.lpfnWndProc = ProgressProc;
@@ -334,6 +336,7 @@ extern "C" __declspec(dllexport) HWND __cdecl InstallerShowProgress(HWND parent,
     if (GdiplusStartup(&page->gdiplus, &startup, nullptr) != Ok) { delete page; return nullptr; }
     page->dark = dark != FALSE;
     page->dpi = dpi;
+    page->language = static_cast<LANGID>(language);
     page->controlHover = controlHover;
     page->controlPressed = controlPressed;
     const WCHAR* captions[] = {preparing, extracting, copying, registering, cleaning};

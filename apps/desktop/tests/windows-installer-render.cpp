@@ -6,11 +6,12 @@
 #include <algorithm>
 #include <cstdio>
 #include <vector>
+#include "../installer/installer-font.h"
 
 extern "C" __declspec(dllimport) HRESULT __cdecl InstallerApplyFrame(HWND window);
 extern "C" __declspec(dllimport) HWND __cdecl InstallerShowProgress(HWND parent, HWND source,
     BOOL dark, UINT dpi, DWORD controlHover, DWORD controlPressed, const WCHAR* brand, const WCHAR* preparing, const WCHAR* extracting,
-    const WCHAR* copying, const WCHAR* registering, const WCHAR* cleaning);
+    const WCHAR* copying, const WCHAR* registering, const WCHAR* cleaning, UINT language);
 extern "C" __declspec(dllimport) BOOL __cdecl InstallerFinishProgress(HWND window);
 
 static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
@@ -43,6 +44,8 @@ int wmain(int argc, wchar_t** argv) {
     HWND window = CreateWindowW(type.lpszClassName, interactive ? argv[6] : L"Installer rendering test",
         WS_POPUP | WS_SYSMENU | WS_MINIMIZEBOX, 100, 100, MulDiv(600, dpi, 96), MulDiv(600, dpi, 96),
         nullptr, nullptr, type.hInstance, nullptr);
+    if (lstrcmpW(InstallerFontName(MAKELANGID(LANG_JAPANESE, SUBLANG_DEFAULT)), L"Yu Gothic UI") != 0 ||
+        lstrcmpW(InstallerFontName(MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED)), L"Microsoft YaHei UI") != 0) return 15;
     if (!window || FAILED(InstallerApplyFrame(window))) return 4;
     HWND stock = CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE, 0, 0, 1, 1, window, nullptr, type.hInstance, nullptr);
     HWND source = CreateWindowW(L"STATIC", L"", WS_CHILD, 0, 0, 1, 1, stock, nullptr, type.hInstance, nullptr);
@@ -50,7 +53,7 @@ int wmain(int argc, wchar_t** argv) {
     SetPropW(window, L"HarnessInstaller.ExtractProgress", reinterpret_cast<HANDLE>(50));
     const auto createProgress = [&]() {
         return InstallerShowProgress(window, source, dark, static_cast<UINT>(dpi), hoverArgb, pressedArgb, argv[1],
-            L"Preparing %d%%", L"Extracting %d%%", L"Copying %d%%", L"Registering %d%%", L"Cleaning %d%%");
+            L"Preparing %d%%", L"Extracting %d%%", L"Copying %d%%", L"Registering %d%%", L"Cleaning %d%%", MAKELANGID(LANG_JAPANESE, SUBLANG_DEFAULT));
     };
     ShowWindow(window, SW_SHOWNOACTIVATE);
     bool clientFrame = true;
@@ -60,7 +63,7 @@ int wmain(int argc, wchar_t** argv) {
         clientFrame = SendMessageW(window, WM_NCHITTEST, 0, MAKELPARAM(point.x, point.y)) == HTCLIENT && clientFrame;
     }
     HWND failed = InstallerShowProgress(window, source, dark, static_cast<UINT>(dpi), hoverArgb, pressedArgb, L"",
-        L"Preparing %d%%", L"Extracting %d%%", L"Copying %d%%", L"Registering %d%%", L"Cleaning %d%%");
+        L"Preparing %d%%", L"Extracting %d%%", L"Copying %d%%", L"Registering %d%%", L"Cleaning %d%%", MAKELANGID(LANG_JAPANESE, SUBLANG_DEFAULT));
     ShowWindow(stock, SW_SHOW);
     const bool failurePreservesStock = !failed && IsWindowVisible(stock);
     if (failed) DestroyWindow(failed);

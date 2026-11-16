@@ -125,7 +125,7 @@ export class DesktopPolicyTestAuth {
     // third-party page, and no later subresource keeps a placeholder on screen.
     // A placeholder that cannot load leaves the window blank, as before.
     void window.loadFile(LOGIN_LOADING_PAGE,
-      { query: { label: this.locale.messages.policyLoginLoading } }).then(loadLogin, loadLogin)
+      { query: { label: this.locale.messages.policyLoginLoading, lang: this.locale.id } }).then(loadLogin, loadLogin)
     return result.promise
   }
 

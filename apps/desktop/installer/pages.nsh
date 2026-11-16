@@ -140,16 +140,7 @@ Function InstallerCreate
     ${NSD_CreateCheckbox} 0 0 0 0 "$(INSTALLER_LAUNCH)"
     Pop $InstallerLaunch
     SendMessage $InstallerLaunch ${WM_SETFONT} $InstallerSmallFont 1
-    System::Call 'user32::GetDC(p $InstallerLaunch) p.r4'
-    System::Call 'gdi32::SelectObject(p r4, p $InstallerSmallFont) p.r5'
-    StrLen $0 "$(INSTALLER_LAUNCH)"
-    System::Alloc 8
-    Pop $6
-    System::Call 'gdi32::GetTextExtentPoint32W(p r4, w "$(INSTALLER_LAUNCH)", i r0, p r6)'
-    System::Call '*$6(i .r7)'
-    System::Free $6
-    System::Call 'gdi32::SelectObject(p r4, p r5)'
-    System::Call 'user32::ReleaseDC(p $InstallerLaunch, p r4)'
+    !insertmacro InstallerTextWidth $InstallerLaunch $InstallerSmallFont "$(INSTALLER_LAUNCH)"
     System::Call 'kernel32::MulDiv(i 42, i $InstallerDpi, i 96) i.r2'
     IntOp $2 $2 + $7
     IntOp $0 $InstallerSize - $2
@@ -163,7 +154,6 @@ Function InstallerCreate
 
     ${NSD_CreateButton} 0 0 0 0 "$(INSTALLER_INSTALL)"
     Pop $InstallerButton
-    !insertmacro InstallerPlace $InstallerButton ${INSTALLER_BUTTON_X} ${INSTALLER_BUTTON_Y} ${INSTALLER_BUTTON_WIDTH} ${INSTALLER_BUTTON_HEIGHT}
     SendMessage $InstallerButton ${WM_SETFONT} $InstallerFont 1
     ${NSD_OnClick} $InstallerButton InstallerStart
     ${NSD_OnNotify} $InstallerButton InstallerPaintButton
@@ -203,6 +193,20 @@ Function InstallerRender
             ShowWindow $InstallerChoose 5
         ${EndIf}
     ${EndIf}
+    ; Keep the branded minimum width, with padding around longer localized captions.
+    ${NSD_GetText} $InstallerButton $8
+    !insertmacro InstallerTextWidth $InstallerButton $InstallerFont $8
+    System::Call 'kernel32::MulDiv(i ${INSTALLER_BUTTON_WIDTH}, i $InstallerDpi, i 96) i.r2'
+    System::Call 'kernel32::MulDiv(i 32, i $InstallerDpi, i 96) i.r3'
+    IntOp $7 $7 + $3
+    ${If} $7 > $2
+        StrCpy $2 $7
+    ${EndIf}
+    IntOp $0 $InstallerSize - $2
+    IntOp $0 $0 / 2
+    System::Call 'kernel32::MulDiv(i ${INSTALLER_BUTTON_Y}, i $InstallerDpi, i 96) i.r1'
+    System::Call 'kernel32::MulDiv(i ${INSTALLER_BUTTON_HEIGHT}, i $InstallerDpi, i 96) i.r3'
+    System::Call 'user32::MoveWindow(p $InstallerButton, i r0, i r1, i r2, i r3, i 1)'
 FunctionEnd
 
 Function InstallerStart

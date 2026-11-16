@@ -29,3 +29,11 @@ it('renders the login placeholder label from the main-process query', () => {
 it('leaves the label empty when no query supplies one', () => {
   expect(open().getElementById('label')?.textContent).toBe('')
 })
+
+it('keeps the loading document in the language of its localized label', () => {
+  const label = 'ログインページを読み込み中…'
+  const document = open('?lang=ja&label=' + encodeURIComponent(label))
+  expect(document.documentElement.lang).toBe('ja')
+  expect(document.getElementById('label')?.textContent).toBe(label)
+  expect(open().documentElement.lang).toBe('en')
+})

@@ -4,8 +4,23 @@ Var InstallerEditFrameBitmap
 
 !macro InstallerPixelFont HANDLE SIZE WEIGHT
     System::Call 'kernel32::MulDiv(i -${SIZE}, i $InstallerDpi, i 96) i.r0'
-    System::Call 'gdi32::CreateFontW(i r0, i 0, i 0, i 0, i ${WEIGHT}, i 0, i 0, i 0, i 1, i 0, i 0, i 5, i 0, w "${INSTALLER_FONT}") p.s'
+    System::Call 'gdi32::CreateFontW(i r0, i 0, i 0, i 0, i ${WEIGHT}, i 0, i 0, i 0, i 1, i 0, i 0, i 5, i 0, w "$InstallerFontFace") p.s'
     Pop ${HANDLE}
+!macroend
+
+; Measure text in the actual control font. The pixel width is returned in $7.
+!macro InstallerTextWidth HWND FONT TEXT
+    System::Call 'user32::GetDC(p ${HWND}) p.r4'
+    System::Call 'gdi32::SelectObject(p r4, p ${FONT}) p.r5'
+    StrLen $0 "${TEXT}"
+    System::Alloc 8
+    Pop $6
+    System::Call '*$6(i 0, i 0)'
+    System::Call 'gdi32::GetTextExtentPoint32W(p r4, w "${TEXT}", i r0, p r6)'
+    System::Call '*$6(i .r7)'
+    System::Free $6
+    System::Call 'gdi32::SelectObject(p r4, p r5)'
+    System::Call 'user32::ReleaseDC(p ${HWND}, p r4)'
 !macroend
 
 ; Produces a closed rounded rectangle. Inputs and output must not use $0/$1.
