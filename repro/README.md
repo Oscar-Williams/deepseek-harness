@@ -1,90 +1,64 @@
-# rc.3 的复现和试应用
+# rc.3 复现与采用
 
-本说明使用官方 `dsh-v0.2.2-rc.3`，基线为 `38a6a5c965aa99ab525161efb7cc5cf1fe62fced`，修复终点为 `548b7d1c3f058b0a506cdf01db4ec3884aae32c6`。源码与审阅材料分别位于同一 fork 的两个分支，下面先准备这两个目录，再构建和查看实际行为。
-
-## 检出或选取提交
-
-在新的工作目录中运行以下 PowerShell 命令。`$review` 保存本分支的 Markdown、截图和复现脚本，`$checkout` 保存可构建的源码。
+基线为官方 `38a6a5c965aa99ab525161efb7cc5cf1fe62fced`，候选为 `e944ab650c861cb7dc697dab718b88fdff884890`。按[提交表](../README.md#提交与采用)选择改动时，先采用共享字体策略，再采用正文适配与后续检查。文案可以单独应用到基线。分支提供完整上游历史。
 
 ```powershell
-$review = Join-Path (Get-Location).Path 'dsh-japanese-review'
-$checkout = Join-Path (Get-Location).Path 'dsh-japanese-source'
-git clone --single-branch --branch review/japanese-experience https://github.com/Oscar-Williams/deepseek-harness.git $review
-git clone --filter=blob:none --single-branch --branch fix/japanese-product-experience-rc3 https://github.com/Oscar-Williams/deepseek-harness.git $checkout
-Set-Location -LiteralPath $checkout
-git switch --detach 548b7d1c3f058b0a506cdf01db4ec3884aae32c6
-```
-
-维护者也可在已有仓库中获取五个提交，然后在准备采用改动的 rc.3 分支上按需 cherry-pick。[提交表](../README.md#提交与采用)列出每个提交及其单项补丁下载；单项和整组的应用结果见[验证记录](../verification.md#补丁应用)。
-
-```powershell
-git fetch https://github.com/Oscar-Williams/deepseek-harness.git fix/japanese-product-experience-rc3
-git switch --create integrate-japanese-rc3 38a6a5c965aa99ab525161efb7cc5cf1fe62fced
-$selectedCommit = '<从提交表选择的提交ID>'
-git cherry-pick $selectedCommit
-```
-
-## 构建并查看字体
-
-项目要求 Node.js 24.9 以上和源码声明的 pnpm 版本。本机使用 Node.js 24.19.0、pnpm 11.28.5；并行度设为 2。
-
-```powershell
+git clone --filter=blob:none --single-branch --branch fix/japanese-product-experience-rc3 https://github.com/Oscar-Williams/deepseek-harness.git dsh-japanese-source
+Set-Location -LiteralPath ./dsh-japanese-source
+git switch --detach e944ab650c861cb7dc697dab718b88fdff884890
 corepack pnpm install --frozen-lockfile
-$env:DSH_GATE_CONCURRENCY = '2'
-corepack pnpm run build --serial
-corepack pnpm dsh web --patch apps/web/tests/pin-browse-picker.overlay.yml --no-open
+$env:DSH_GATE_CONCURRENCY = '1'
+corepack pnpm run build:artifacts --serial
+corepack pnpm run build:check --serial
 ```
 
-在日语界面打开包含假名和汉字的消息，再查看其中带日文的代码。Windows Edge 可通过 DevTools 协议的 `CSS.getPlatformFontsForNode` 记录实际字体；macOS Firefox 使用检查器的 Fonts 面板。样本文段“作業を続ける。入力・確認・保存・読み取り”用于确认字体选择，正文和代码的其他内容沿用同一套主题变量。
+## 主窗口的字形选择
 
-对照简体、繁体和韩文时，检查实际字体是否来自对应语种。为局部内容设置 `lang="ja-JP"` 或 `lang="zh-Hant"` 后，确认该内容遵循自己的语言标记。使用自定义字体的用户应继续得到其设置的优先级。[实际字体结果](../verification.md#字体选择)提供本次 Windows 对照。
-
-## 查看会话和终端
-
-构建完成后，可运行本目录的 [Windows Web 脚本](windows-web-flow.cjs)。它依赖本机 Edge 和源码开发依赖中的 Playwright，使用正常的构建版 CLI 启动 Web Host，并创建隔离的工作区、home 和浏览器 context。模型响应来自回环地址上的流式夹具。
+将 `DSH_HOME` 指向空的临时目录后，从源码运行 Web。工作区使用测试文件，浏览器独立配置避免借用日常会话。
 
 ```powershell
-Set-Location -LiteralPath $checkout
-$playwright = node -p "require.resolve('playwright',{paths:[require('node:path').resolve('apps/web')]})"
-$run = Join-Path ([IO.Path]::GetTempPath()) ('dsh-japanese-review-' + [guid]::NewGuid().ToString('N'))
-$commit = git rev-parse HEAD
-node (Join-Path $review 'repro/windows-web-flow.cjs') $playwright $checkout $run $commit
+$env:DSH_HOME = Join-Path ([IO.Path]::GetTempPath()) ('dsh-ja-' + [guid]::NewGuid().ToString('N'))
+corepack pnpm dsh web --patch apps/web/tests/pin-browse-picker.overlay.yml --no-open --port 0
 ```
 
-脚本记录假名组合到日文确认的事件，发送消息并显示正文和代码，随后在真实 Windows cmd 中输出日文。切换界面语言后，读取之前设置的进程变量，检查字体更新和原进程的连续性。输出目录包含截图、运行日志和结构化结果。[已取得的会话与终端结果](../verification.md#会话与终端)便于直接对照。
+1. 在「设置 → 常规」选日本語。展开「その他のフォント設定」，把「漢字の字形」设为「自動」。查看含假名的正文、行内代码和围栏代码。
+2. 切到中文，自动模式下用含假名和纯汉字的两段回复作对照。日文段落使用日文字形，中文控件和未标注的纯汉字段落使用简体。
+3. 在「更多字体设置 → CJK 字形」选择「日文」，查看纯汉字段落、代码与终端。重载后检查选择仍在。回到「自动」并将界面换成 English，以浏览器的日语偏好验证地区回退。使用指定字体时对照原有自定义设置。
+4. Chrome/Edge 的 DevTools 可记录 `CSS.getPlatformFontsForNode`。Firefox 的检查器 Fonts 面板可查看实际字体。码位「直、考、骨、経」用于观察字形。设置作用于整条实际渲染路径。
 
-人工核对终端时，在日语界面打开终端，依次执行 `chcp 65001`、`set DSH_LOCALE_TEST_MARKER=17349` 和 `echo 入力と保存を確認:%DSH_LOCALE_TEST_MARKER%`。将界面语言改为中文后，继续执行 `echo still-%DSH_LOCALE_TEST_MARKER%`，应得到 `still-17349`。
+## 定向测试、会话和终端
 
-## 定向测试和已保存会话
-
-下面八个测试文件覆盖字体候选的存在及顺序、终端语言变更、输入区保护、启动和桌面登录，以及安装器资源。
+安装项目所用 Playwright 浏览器，或在 Windows 指定已安装的 `chrome` / `msedge`。录制会话通过现有持久化接口恢复，Web 字形用例检查设置重载、显式语种、代码和绘制对照。
 
 ```powershell
-$tests = @(
-  'packages/client/ui-theme/tests/locale-font-stacks.client.spec.ts',
-  'packages/client/ui-sidebar-terminal/tests/terminal-body.client.spec.tsx',
-  'packages/client/ui-conversation/tests/input-bar.client.spec.tsx',
-  'packages/client/web/tests/boot-page.client.spec.ts',
-  'packages/client/web/tests/boot.client.spec.ts',
-  'apps/desktop/tests/installer-locales.spec.ts',
-  'apps/desktop/tests/policy-test-auth.spec.ts',
-  'apps/desktop/tests/policy-login-loading.spec.ts'
-)
-corepack pnpm exec vitest run --maxWorkers=2 --testTimeout=90000 @tests
 $env:DSH_SNAPSHOT = 'replay'
-corepack pnpm exec vitest run --config vitest.web.config.ts apps/web/tests/japanese-fonts.e2e.ts
+$env:DSH_FONT_CHROMIUM_CHANNEL = 'chrome'
+corepack pnpm exec vitest run --config vitest.web.config.ts apps/web/tests/japanese-fonts.e2e.ts apps/web/tests/regional-fonts.e2e.ts --maxWorkers=1
+corepack pnpm run check:i18n
+corepack pnpm run verify-client-ui-i18n
 ```
 
-录制会话测试使用已有日志，通过真实持久化接口恢复会话，核对日文输入提示和操作文案。该测试默认启动 Playwright Chromium，需要按仓库的浏览器测试说明准备对应浏览器；本机此次用临时启动配置指定已安装的 Edge。[构建与测试结果](../verification.md#构建与测试)列明实际执行范围。
+Windows 可在独立目录获取审阅分支并运行 [Windows Web 复现脚本](windows-web-flow.cjs)。脚本由正常 CLI 启动隔离 Host，回环 SSE 返回样例消息，使用已安装的 Edge。脚本记录 Chromium 组合事件、整个输入区的翻译保护、会话渲染、真实 cmd 和切换前后的字体，最后关闭本轮创建的浏览器与 Host。
 
-## 桌面和原生安装器
+```powershell
+$review = Join-Path (Split-Path $PWD.Path -Parent) 'dsh-japanese-review'
+git clone --single-branch --branch review/japanese-experience https://github.com/Oscar-Williams/deepseek-harness.git $review
+$playwright = node -p "require.resolve('playwright',{paths:[require('node:path').resolve('apps/web')]})"
+$run = Join-Path ([IO.Path]::GetTempPath()) ('dsh-ja-proof-' + [guid]::NewGuid().ToString('N'))
+$commit = git rev-parse HEAD
+node (Join-Path $review 'repro/windows-web-flow.cjs') $playwright $PWD.Path $run $commit
+```
 
-在桌面的日语欢迎页检查登录及 API Key 入口，再通过桌面测试通道显示普通更新、强制更新和登录等待页，检查文案与所选字体。当前证据使用真实 Electron 渲染器和隔离 IPC 状态。
+实机组合输入在 Windows 已安装「日语 → 基本输入法 → Microsoft IME」时操作。在输入框聚焦后切换到日本語，点 `A` 切到 `あ`。输入 `nihongo` 且可见 `にほんご`，用空格选词，再按一次 Enter 确认。确认后检查草稿仍在且没有新增消息。继续输入后，明确点发送，查看稿件和回复。浏览器翻译复验只使用样例会话，核对正文与整块输入区。
+
+## 桌面与原生安装器
+
+先正常退出已安装的 DSH App。测试 Desktop 时分别为 `DSH_HOME` 和 `DSH_DESKTOP_USER_DATA_DIR` 指定空目录，再从源码运行 `corepack pnpm run dev:desktop`。窗口语言缓存和 Host 设置均位于候选目录。欢迎、登录等待、普通与强制更新可以使用隔离 IPC 或更新夹具制造相应状态。
 
 Windows 安装器样例需要交互式 Windows x64 桌面，以及项目原有的 MSVC、Windows SDK 和桌面构建依赖。生产 NSIS 配置由 `apps/desktop/scripts/test-windows-installer.mjs` 调用，使用独立测试产品标识和模拟载荷。本次选择日文、简体两种语言，并将侧栏图片指向同次生成的资源目录。下面的临时 runner 复现这两处样例配置，结束后移除临时脚本。
 
 ```powershell
-Set-Location -LiteralPath $checkout
+$checkout = $PWD.Path
 $original = Join-Path $checkout 'apps/desktop/scripts/test-windows-installer.mjs'
 $temporary = Join-Path (Split-Path -Parent $original) ('japanese-installer-review-' + [guid]::NewGuid().ToString('N') + '.mjs')
 $runner = [IO.File]::ReadAllText($original)

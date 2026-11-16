@@ -24,18 +24,22 @@ const messages = [
 ]
 const sanitize = value => String(value).replace(/http:\/\/127\.0\.0\.1:\d+\S*/g, '<local URL>')
 let last = 'provider start'
+let providerRequests = 0
 const result = { commit:checkout, platform:process.platform, provider:'isolated locally streamed fixture via normal DSH Web protocol' }
 const provider = createServer((request, response) => {
   request.resume()
-  request.on('end', () => {
+  request.on('end', async () => {
     if (request.method !== 'POST') {
       response.writeHead(200, {'content-type':'application/json'})
       response.end('{"data":[]}')
       return
     }
+    providerRequests++
     response.writeHead(200, { 'content-type':'text/event-stream' })
     for (const [type, payload] of messages) {
+      if (response.destroyed) return
       response.write('event: ' + type + '\ndata: ' + JSON.stringify({type,...payload}) + '\n\n')
+      await new Promise(resolve => setTimeout(resolve, 40))
     }
     response.end()
   })
@@ -96,11 +100,13 @@ async function run() {
   await composer.evaluate(el => {
     window.compositionEvents = []
     for (const type of ['compositionstart','compositionupdate','compositionend']) {
-      el.addEventListener(type,event => window.compositionEvents.push({type,data:event.data}))
+      el.addEventListener(type,event => window.compositionEvents.push({type,data:event.data,isTrusted:event.isTrusted}))
     }
   })
   await composer.click()
   await cdp.send('Input.imeSetComposition',{text:'にほんご',selectionStart:0,selectionEnd:4})
+  await cdp.send('Input.dispatchKeyEvent',{type:'rawKeyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13})
+  await cdp.send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13})
   await cdp.send('Input.insertText',{text:japaneseInput})
   await page.waitForFunction(text=>document.querySelector('[data-composer-input]').textContent===text,japaneseInput)
   const ime = await composer.evaluate(el=>({
@@ -112,7 +118,8 @@ async function run() {
   if (!ime.editorGuarded || !ime.toolbarGuarded || !ime.events.some(event=>event.type==='compositionend' && event.data===japaneseInput)) {
     throw new Error('Composer event failed ' + JSON.stringify(ime))
   }
-  result.ime=ime
+  if(providerRequests !== 0) throw new Error('Enter sent the draft during composition')
+  result.ime={ ...ime, requestsDuringComposition:providerRequests }
   last = 'local Japanese conversation'
   await page.getByRole('button',{name:'メッセージを送信',exact:true}).click()
   const answer=page.locator('p').filter({hasText:/^保存した内容を読み取りました。$/})
@@ -122,6 +129,39 @@ async function run() {
   if (!eligible || !(await code.count())) throw new Error('Assistant message eligibility or code rendering is missing')
   result.conversation = {answer:await answer.innerText(), translationEligible:eligible, codeRendered:true}
   await page.screenshot({path:path.join(output,'web-japanese-session.png')})
+  last = 'trajectory table'
+  await page.getByRole('tab',{name:'実行履歴',exact:true}).click()
+  const traceTable = page.locator('[data-trajectory-scroll] table')
+  await traceTable.waitFor()
+  await page.evaluate(() => document.fonts.ready)
+  const traces = await traceTable.evaluate(table => {
+    const fontTexts = []
+    const walker = document.createTreeWalker(table, NodeFilter.SHOW_TEXT)
+    for(let text=walker.nextNode();text && fontTexts.length<8;text=walker.nextNode()){
+      if(!/[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(text.textContent)) continue
+      const element=text.parentElement
+      const bounds=element.getBoundingClientRect()
+      const style=getComputedStyle(element)
+      if(bounds.width<=1||bounds.height<=1||style.visibility!=='visible') continue
+      element.id='dsh-ja-trajectory-proof-'+fontTexts.length
+      fontTexts.push({ id:element.id, cell:text.textContent.trim().slice(0,80), family:style.fontFamily })
+    }
+    return fontTexts
+  })
+  if (traces.length===0) throw new Error('No visible Japanese trajectory text was rendered')
+  await cdp.send('DOM.enable')
+  await cdp.send('CSS.enable')
+  const {root:traceDocument}=await cdp.send('DOM.getDocument')
+  for(const trace of traces){
+    const {nodeId:traceId}=await cdp.send('DOM.querySelector',{nodeId:traceDocument.nodeId,selector:'#'+trace.id})
+    const {fonts}=await cdp.send('CSS.getPlatformFontsForNode',{nodeId:traceId})
+    trace.fonts=fonts.map(font=>({family:font.familyName,glyphs:font.glyphCount}))
+  }
+  result.trajectory=traces
+  if(!traces.some(trace=>trace.fonts.some(font=>font.family==='Yu Gothic UI'&&font.glyphs>0))){
+    throw new Error('Japanese trajectory font was not drawn: ' + JSON.stringify(traces))
+  }
+  await page.getByRole('tab',{name:'チャット',exact:true}).click()
   last = 'real terminal available'
   const expand=page.locator('[data-sidebar-right-expand]')
   if (await expand.isVisible()) await expand.click()
@@ -139,6 +179,8 @@ async function run() {
   }
   const marker = '入力と保存を確認'
   await command('chcp 65001')
+  await command('prompt DSH$G$S')
+  await command('cls')
   await command('set DSH_LOCALE_TEST_MARKER=17349')
   await command('echo ' + marker + ':%DSH_LOCALE_TEST_MARKER%')
   await page.waitForFunction(text=>document.querySelector('.xterm-rows')?.textContent.includes(text),marker+':17349',{timeout:8500})
@@ -176,15 +218,34 @@ async function run() {
   if (!/^.*Yu Gothic UI/.test(before.family) || !/Microsoft YaHei/.test(after.family) || /Yu Gothic UI/.test(after.family) || !after.sameNode) {
     throw new Error('Terminal font/identity assertion failed ' + JSON.stringify({before,after}))
   }
+  last = 'Japanese character forms in the Chinese interface'
+  await page.getByRole('button',{name:'账号菜单',exact:true}).click()
+  await page.getByRole('menuitem',{name:'设置',exact:true}).click()
+  const settings = page.getByRole('dialog',{name:'设置',exact:true})
+  await settings.getByRole('button',{name:'更多字体设置',exact:true}).click()
+  await settings.getByRole('button',{name:'CJK 字形',exact:true}).click()
+  await page.getByRole('menuitem',{name:'日文',exact:true}).click()
+  await page.waitForFunction(()=>document.body.dataset.dshCjkGlyphRegion==='ja')
+  const interfaceFonts = await page.locator('body').evaluate(el => getComputedStyle(el).getPropertyValue('--dsh-font-family-text-resolved'))
+  await page.keyboard.press('Escape')
+  await terminalRows.waitFor()
+  const override=await fontReport('zh-CN / ja')
+  if (!override.sameNode || !/Yu Gothic UI/.test(override.family) || !/Microsoft YaHei/.test(interfaceFonts)) {
+    throw new Error('Changing character forms must update the same terminal and preserve Chinese controls')
+  }
   await command('echo still-%DSH_LOCALE_TEST_MARKER%')
   await page.waitForFunction(()=>document.querySelector('.xterm-rows')?.textContent.includes('still-17349'))
-  result.terminal = { before,after, sameProcessEnvironment:true, terminalRenderedOutput:'still-17349' }
+  result.terminal = { before,after, override, interfaceFonts, sameProcessEnvironment:true, terminalRenderedOutput:'still-17349' }
   await terminalRows.screenshot({path:path.join(output,'web-terminal-switch.png')})
 }
 run().catch(error=>{process.exitCode=1;result.failure={step:last,message:sanitize(error.message)}; console.error(JSON.stringify(result.failure))})
   .finally(async()=>{
     await browser?.close()
-    child?.kill()
+    if (child && child.exitCode === null && child.signalCode === null) {
+      const closed = new Promise(resolve => child.once('close', resolve))
+      child.kill()
+      await closed
+    }
     provider.closeAllConnections()
     provider.close()
     fs.writeFileSync(path.join(output,'web-flow-result.json'),JSON.stringify(result,null,2)+'\n')

@@ -1,42 +1,35 @@
-# rc.3 日语体验修复说明
+# 字形与日语文案的技术说明
 
-日语用户报告的核心问题是字形选择。界面已经显示日语，共享字体列表却把 PingFang SC、Microsoft YaHei 等简体字库放在日文字库前面。汉字能够显示，地区字形仍可能与日文习惯不符。字体列表需要跟随语种，日文措辞则需要根据按钮和命令的实际行为逐项审阅。[原始反馈](https://x.com/2022_technology/status/2118351787220664813) · [macOS Firefox 报告](https://github.com/deepseek-ai/deepseek-harness/discussions/9516)
+rc.3 的共享样式包含地区字体选择，但它依赖界面语种，内容、代码、终端和安装器也各有字体来源。日文内容出现在英文或中文界面时，需要在内容边界决定字形，同时保留界面词典和原有内容语义。安装器则需要读取自己的当前语言。正文里的几个样本文字只用于识别实际绘制的字体。
 
-修复以官方 rc.3 为基线，最终提交为 `548b7d1c3f058b0a506cdf01db4ec3884aae32c6`。[完整代码比对](https://github.com/deepseek-ai/deepseek-harness/compare/38a6a5c965aa99ab525161efb7cc5cf1fe62fced...Oscar-Williams:fix/japanese-product-experience-rc3)保留了全部源码、测试和必要的双语 README 修改；[验证记录](verification.md)说明实际运行的环境和结果。
+## 字体由主题统一解析
 
-## 字体如何跟随语种
+`ui-theme` 保存 `cjkGlyphRegion`。旧配置缺字段时按 `auto` 读取。启动注入和运行中的主题服务使用同一份地区字体数据，`ThemeSnapshot.resolvedFonts` 提供四份已展开的字体列表。Web 和桌面主窗口由 `ui-layout` 写入变量。终端直接从注入的主题快照读取终端字体，连接仍由原有终端控制器持有。
 
-[共享主题](https://github.com/Oscar-Williams/deepseek-harness/blob/548b7d1c3f058b0a506cdf01db4ec3884aae32c6/packages/client/ui-theme/src/styles/base.css)按文档或内容元素的 `lang` 选择地区字体。日语优先使用系统日文字体，再使用日文 Noto 和系统回退。正文、代码和编辑器沿用各自的共享字体变量，用户自定义字体继续优先，代码中的拉丁字符保留等宽字体。
-
-语言标记所在元素重新解析字体变量。日语界面中的 `lang="zh-Hant"` 段落使用繁体字库，英语容器中的 `lang="ja-JP"` 内容使用日文字库；未标记的内容默认使用界面语言。[轨迹表](https://github.com/Oscar-Williams/deepseek-harness/blob/548b7d1c3f058b0a506cdf01db4ec3884aae32c6/packages/client/ui-trajectory/src/client/TrajectoryTable.module.css)也改用共享代码字体，覆盖原先独立写死的字体列表。
-
-## 桌面与原生安装器
-
-| 入口 | 修改方式 |
+| 位置 | 字形来源 |
 | --- | --- |
-| [欢迎页](https://github.com/Oscar-Williams/deepseek-harness/blob/548b7d1c3f058b0a506cdf01db4ec3884aae32c6/apps/desktop/renderer/welcome.css)、[更新窗口](https://github.com/Oscar-Williams/deepseek-harness/blob/548b7d1c3f058b0a506cdf01db4ec3884aae32c6/apps/desktop/renderer/update-dialog.css) | 按窗口当前显示的语言选择字体；欢迎页在实际 body 元素处解析字体变量。 |
-| [登录等待页](https://github.com/Oscar-Williams/deepseek-harness/blob/548b7d1c3f058b0a506cdf01db4ec3884aae32c6/apps/desktop/renderer/policy-login-loading.html) | 创建者传递语言 ID 和本地化文案，独立渲染器使用对应地区字库。 |
-| [NSIS 控件](https://github.com/Oscar-Williams/deepseek-harness/blob/548b7d1c3f058b0a506cdf01db4ec3884aae32c6/apps/desktop/installer/lifecycle.nsh) | 使用安装器当前选中的语言，日文选择 Yu Gothic UI。 |
-| [原生绘制](https://github.com/Oscar-Williams/deepseek-harness/blob/548b7d1c3f058b0a506cdf01db4ec3884aae32c6/apps/desktop/installer/window-frame.cpp)与[字体选择函数](https://github.com/Oscar-Williams/deepseek-harness/blob/548b7d1c3f058b0a506cdf01db4ec3884aae32c6/apps/desktop/installer/installer-font.h) | 绘制入口接收同一 LANGID，并集中选择字体。 |
-| [重启提示](https://github.com/Oscar-Williams/deepseek-harness/blob/548b7d1c3f058b0a506cdf01db4ec3884aae32c6/apps/desktop/installer/restart-status.h) | 复用相同的地区字体选择。 |
-| [安装和完成按钮](https://github.com/Oscar-Williams/deepseek-harness/blob/548b7d1c3f058b0a506cdf01db4ec3884aae32c6/apps/desktop/installer/pages.nsh) | 使用实际控件字体测量本地化文案，保留两侧内边距，并以原设计宽度作为最小值。 |
+| CJK 界面的按钮、菜单及弹层 | 界面语种 |
+| 英文等非 CJK 界面的控件 | 所选地区，或自动读取浏览器语言列表中的首个 CJK 语种 |
+| 带语种标记的正文或代码 | 内容子树中最近的显式语言属性 |
+| 含假名的未标注自然语言块 | 日文字形 |
+| 其他正文、代码和终端 | 所选地区。自动依次使用 CJK 界面语种、浏览器首个 CJK 语种和平台默认回退 |
 
-“今すぐインストール”在原固定宽度下发生裁字；测量后按钮可以完整显示该文案。隔离安装器的日文与简体对照、GDI 实际字体和 150% 缩放结果见[原生验证](verification.md#桌面与安装器)。
+各角色的自定义字体放在内建候选之前。日文候选先使用系统日文字体，再使用日文 Noto 和平台通用回退。代码和终端先匹配拉丁等宽字体。基础字体表统一维护，数学和图标保留各自的专用字库。启动失败页、品牌和独立原生窗口的例外由检查脚本点名。
 
-## 终端、输入区与启动
+## 正文推断的范围
 
-[侧栏终端](https://github.com/Oscar-Williams/deepseek-harness/blob/548b7d1c3f058b0a506cdf01db4ec3884aae32c6/packages/client/ui-sidebar-terminal/src/client/terminal.tsx)通过现有 Cordis 注入的 observable 订阅当前语言。切换语言时更新现有 xterm 的字体选项并重新测量网格，保留终端对象、已有输出和底层进程。图标候选加入 Symbols Nerd Font 系列，供已安装该字体的系统使用。
+`ui-primitives` 在已有 Markdown 块渲染中检查段落、标题、列表文字和表格单元格的假名。`data-dsh-cjk="ja"` 只改变字体。标点、网址、公式、原始 HTML 及代码中的字串不参与判断。调用者可以通过 `MarkdownText.lang` 或解析节点的语种属性提供真实内容语言，嵌套节点沿用相应语言。应用外壳的 `html[lang]` 给出页面默认值，正文推断只检查内容容器内的语言属性。编程语言仍由代码围栏的标识决定。
 
-[整个 InputBar](https://github.com/Oscar-Williams/deepseek-harness/blob/548b7d1c3f058b0a506cdf01db4ec3884aae32c6/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx)声明 `translate="no"` 和 `notranslate`，保护编辑器及其按钮、菜单和提示。助手正文继续具备浏览器翻译资格。日文组合输入沿用现有编辑器和 IME 处理。
+源文本、流式更新和复制沿用原有渲染路径。浏览器翻译保护覆盖整块输入区，包括编辑器和工具栏。聊天正文保留翻译资格，具体浏览器行为见验证记录。
 
-[启动页](https://github.com/Oscar-Williams/deepseek-harness/blob/548b7d1c3f058b0a506cdf01db4ec3884aae32c6/packages/client/web/src/boot-page.ts)在主题及语言插件就绪前即可显示日文，并提供本地字体回退。桌面保存的语言通过既有 preload 读取；跨进程回复字段经过检查，读取失败时保留浏览器语种并记录诊断。
+## 文案与检查
 
-日文措辞按欢迎、工作区、安装和输入动作调整，保留产品名、可输入命令、快捷键及格式占位符。[改词表](ja-copy-review.md)供日语评审结合界面语境决定用词；文案对应的录制会话、预期输出和测试编译配置与源码一起提交。
+日语评审从实际动作、状态、错误、空状态和无障碍名称入手。术语参考把「解除」「消去」「初期設定に戻す」放回不同的操作，保留会话、插件等常见外来语及原有命令标识。CLI 与 SDK 诊断按展示归属盘点，本次交付的改词集中在界面与插件目录。
 
-## 集成范围
+`verify-japanese-experience` 按字典所有者及键核查已审阅的语境，使用 TypeScript AST 和 Lightning CSS 查找字体声明。正向用例允许主题字形变量、正常术语和既定原生窗口。负向用例覆盖静态、内联和模板中的硬编码字体，包括引用主题后又显式指定另一个字体的声明。设置、主题装配和 Markdown 约定同步写入对应包的双语 README。
 
-共享字体、桌面及安装器、终端、输入区、日文文案各占一个提交。维护者可整组采用，也可按下一版范围摘取，[提交表](README.md#提交与采用)提供源码及单项补丁入口。
+## 对接上游
 
-[社区方案 #9663](https://github.com/deepseek-ai/deepseek-harness/discussions/9663)也涉及日文字体、输入和安装器本地化。评审可比较其具体实现，再选取适合下一版的提交。本次交接提供 rc.3 上的地区字体选择、原生按钮排版、终端连续性和浏览器翻译保护。
+[#9516](https://github.com/deepseek-ai/deepseek-harness/discussions/9516) 提到在英文界面阅读日文时误用简体字形。候选通过浏览器偏好和正文标记处理这类内容。[#9496](https://github.com/deepseek-ai/deepseek-harness/discussions/9496) 提到的缺字风险由地区候选、对应 Noto 和最终平台回退共同处理。[#8179](https://github.com/deepseek-ai/deepseek-harness/discussions/8179) 对应现有自定义字体，地区设置接在用户字体之后。
 
-各平台的发布复验项目集中在[验证记录](verification.md#发布复验)，操作方法在[复现步骤](repro/README.md)。
+社区方案 [#9663](https://github.com/deepseek-ai/deepseek-harness/discussions/9663) 也讨论日语体验和字体。维护者可先比较字体回退、客户端用语和桌面入口，再从这里选取需要的改动。CLI、SDK 和后续发布范围由各自维护者决定。分支的基线、依赖和逐项补丁链接见[采用顺序](README.md#提交与采用)。
