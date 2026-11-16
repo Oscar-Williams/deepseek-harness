@@ -1,0 +1,52 @@
+name: Japanese font verification
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: japanese-fonts-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_OPTIONS: --max-old-space-size=3072
+  DSH_TELEMETRY_DISABLED: '1'
+  DSH_SNAPSHOT: replay
+
+jobs:
+  fonts:
+    name: fonts (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        os: [macos-26, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v5.0.0
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install regional fonts on Linux
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y fonts-noto-cjk
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - name: Build once
+        run: pnpm run build:artifacts --serial
+      - name: Verify three engines serially
+        env:
+          DSH_FONT_BROWSERS: chromium,firefox,webkit
+        run: pnpm exec vitest run --config vitest.web.config.ts apps/web/tests/regional-fonts.e2e.ts --maxWorkers=1
+      - uses: actions/upload-artifact@v6.0.0
+        if: always()
+        with:
+          name: japanese-fonts-${{ matrix.os }}
+          path: output/japanese-fonts
+          if-no-files-found: warn
+          retention-days: 14
