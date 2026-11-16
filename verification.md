@@ -1,12 +1,14 @@
-# rc.3 验证记录
+# rc.3 Windows 验收记录
 
-候选源码为 [`e944ab650c861cb7dc697dab718b88fdff884890`](https://github.com/Oscar-Williams/deepseek-harness/commit/e944ab650c861cb7dc697dab718b88fdff884890)，基线是官方 rc.3 的 [`38a6a5c965aa99ab525161efb7cc5cf1fe62fced`](https://github.com/deepseek-ai/deepseek-harness/commit/38a6a5c965aa99ab525161efb7cc5cf1fe62fced)。本页记录 2026-11-17 的 Windows 11 x64 验收，构建使用 Node.js 24.19.0 和 pnpm 11.28.5。
+Windows 实机验收使用加入修复后构建的 `dsh-v0.2.2-rc.3`。Web 和桌面欢迎页使用 `6896be77` 的构建产物。环境为 Windows 11 x64，构建使用 Node.js 24.19.0 和 pnpm 11.28.5。[实机验收构建对应的源码](https://github.com/Oscar-Williams/deepseek-harness/commit/6896be77b03f0fe03e1042600dc1b58d6b51b6b7)
+
+待审阅提交 `e944ab65` 在该构建的源码上更新了两条预装插件简介及工作流的浏览器安装命令。插件目录检查、推送前类型检查和 Edge 会话与终端复现脚本均已通过。[待审阅源码](https://github.com/Oscar-Williams/deepseek-harness/commit/e944ab650c861cb7dc697dab718b88fdff884890)
 
 ## Web 字形与设置
 
 | 场景 | 浏览器和取证方法 | 结果 |
 | --- | --- | --- |
-| rc.3 的日文正文与代码 | Edge 157，同页受控对照，使用 DevTools 实际字体统计 | 日文从 Microsoft YaHei 切到 Yu Gothic UI，拉丁代码保留 Consolas。简体、繁体、韩文分别检查 Microsoft YaHei、Microsoft JhengHei UI 和 Malgun Gothic。 |
+| rc.3 的日文正文与代码 | Edge 157，同一页面分别应用两套字体规则，用 DevTools 统计实际绘制的字体 | 日文从 Microsoft YaHei 切到 Yu Gothic UI，拉丁代码保留 Consolas。简体、繁体、韩文分别检查 Microsoft YaHei、Microsoft JhengHei UI 和 Malgun Gothic。 |
 | 日文界面的标题、正文、表格与代码 | Chrome 157.0.8103.51，源码构建，DevTools 实际绘制统计及同元素像素对照 | 四处均绘制 Yu Gothic UI，分别为 15、17、13、4 个字形。 |
 | 中文界面中的日文回复 | Chrome 157，同一回复用日文和简体系统字体作正负对照 | 含假名的正文匹配日文对照。中文控件与未标注的纯汉字仍采用简体。 |
 | 中文界面手动选日文 | Chrome 157，纯汉字像素对照、代码字体及重载 | 控件保留简体，纯汉字正文与代码采用日文候选。重载后选择仍生效。 |
@@ -15,15 +17,15 @@
 | Windows Firefox 正文与代码 | Firefox 160.0，独立配置，WebDriver BiDi 对同一个元素逐次取样 | 两处实际像素均与 Yu Gothic UI 相同，与 Microsoft YaHei 对照不同。两种字体先通过本机字体加载验证。 |
 | 执行履历表 | Edge 157，DevTools 统计可见文字节点 | 「初期システムプロンプト」等实际绘制 Yu Gothic UI，「ターン 1」中的拉丁数字同时使用 Consolas。 |
 
-Chrome 和 Firefox 的页面均使用隔离 Host、临时 home 和无密钥记录。字体栈检查验证候选名称及顺序。显式语种一项同时有 CSS 内容容器测试和解析节点测试。推断只添加字形提示，流式稳定节点、代码标识和原始 HTML 行为由 Markdown 回归测试覆盖。
+Chrome 和 Firefox 均连接本机单独启动的 DSH Web 服务，回放预先录制的样例会话。独立测试目录保存本轮会话和设置。字体测试核对候选名单及顺序，Markdown 测试检查显式语种、流式更新、代码语言标识和原始 HTML 的处理。
 
 ![Windows Firefox 的日语正文与代码](evidence/windows-firefox-candidate.png)
 
 ## 会话、输入和终端
 
-真实 Web Host 由构建后的 CLI 在独立 home 启动。模型回复从本机回环 SSE 夹具返回，输入文本和工作区也都是样例。Chromium DevTools 产生组合事件并确认「日本語の入力を確認」，随后显式发送并显示回复和代码。输入区编辑器和工具栏继承翻译保护，回复正文仍有翻译资格。
+用构建后的 CLI 单独启动 DSH Web 服务，工作区和输入均使用测试数据。测试服务通过本机连接流式返回样例回复。自动化用例用 Chromium DevTools 模拟输入组合事件，确认「日本語の入力を確認」后再发送，核对收到的日文正文和代码。
 
-Windows Microsoft 日语 IME 实机输入 `nihongo`，空格转换后按 Enter 确认「日本語」。草稿保留，Host 发送请求为 0，随后仍可开始新一轮组合。明确点击发送后，本地夹具收到 1 次请求并流式返回日文回复。[确认后的草稿](evidence/windows-edge-ime-draft.png)
+另用 Windows 的 Microsoft 日语输入法在 Edge 输入 `nihongo`，按空格转换，再按 Enter 确认「日本語」。此时草稿仍在输入框，模型请求为 0，可以继续输入。点击发送后，测试服务收到 1 次请求并流式返回日文回复。[确认后的草稿](evidence/windows-edge-ime-draft.png)
 
 Edge 内置翻译将会话标题和滚入可见区的英文消息译成日文。输入框里的英文草稿与工具栏的 Workspace Write 保留原文。[翻译后的会话](evidence/windows-edge-translation.png)
 
@@ -33,11 +35,11 @@ Edge 内置翻译将会话标题和滚入可见区的英文消息译成日文。
 
 ## 桌面与安装器
 
-完全退出已安装的 DSH 后，使用隔离的 DSH_HOME 和 Electron 目录启动源码构建。Electron 44.7.0 的日文欢迎标题实际绘制 Yu Gothic UI Light，登录与 API Key 按钮绘制 Yu Gothic UI Semibold。[实际欢迎页](evidence/windows-desktop-welcome.png)
+正常退出已安装的 DSH 后，用独立的 `DSH_HOME` 和 Electron 用户数据目录启动 rc.3 修复构建。Electron 44.7.0 的日文欢迎标题实际绘制 Yu Gothic UI Light，登录与 API Key 按钮绘制 Yu Gothic UI Semibold。[实测欢迎页](evidence/windows-desktop-welcome.png)
 
-登录等待页和普通更新窗口沿用 `548b7d1c` 的隔离 Electron 证据，产品输入一致。强制更新窗口单测通过，本轮仅将命令地址框接入代码字体变量。[登录等待页](evidence/electron-after-login-ja.png)
+登录等待页和普通更新窗口的截图来自 rc.3 的 `548b7d1c` 构建，对应窗口代码和日文资源在待审阅提交中保持一致。强制更新窗口的命令地址框现在使用统一的代码字体，相应用例已通过。[登录等待页](evidence/electron-after-login-ja.png)
 
-Windows 原生安装器使用上游 NSIS、隔离产品标识和模拟载荷。日语及简体各通过 16 项安装和卸载检查，涵盖路径校验、完成页、进程占用、静默更新和卸载。150% 缩放下「今すぐインストール」完整显示。原生进度和重启提示也通过各自的样例。GDI 实际选中日文 Yu Gothic UI、简体 Microsoft YaHei UI。本轮与 `548b7d1c` 的安装器源文件相同，继续采用这组记录。
+原生安装器从 rc.3 的 `548b7d1c` 构建，使用项目的 NSIS 配置、测试产品标识和模拟载荷。待审阅提交使用相同的安装器源码。日语及简体各通过 16 项检查，覆盖路径校验、安装完成、进程占用、静默更新和卸载。150% 缩放下「今すぐインストール」完整显示。原生进度和重启提示另用独立样例检查。GDI 在日语安装器中选中 Yu Gothic UI，在简体安装器中选中 Microsoft YaHei UI。
 
 ## 构建、检查与记录回放
 
@@ -50,5 +52,3 @@ Windows 原生安装器使用上游 NSIS、隔离产品标识和模拟载荷。�
 | 配置、文案与双语说明 | 配置目录、Cordis 检查目录、插件目录、双语配对及文档站构建通过。 |
 | fork 推送前检查 | 5 项类型检查通过。 |
 | 固定补丁 | 合并 diff 和按序应用的 14 份补丁均从 rc.3 重建同一候选树。 |
-
-本次 Windows 渲染和录制回放构建为 `6896be77b03f0fe03e1042600dc1b58d6b51b6b7`。随后生成的提交同步两条预装插件简介，对应目录新鲜度检查及推送前类型检查已通过。

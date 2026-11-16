@@ -1,6 +1,6 @@
 # rc.3 复现与采用
 
-基线为官方 `38a6a5c965aa99ab525161efb7cc5cf1fe62fced`，候选为 `e944ab650c861cb7dc697dab718b88fdff884890`。按[提交表](../README.md#提交与采用)选择改动时，先采用共享字体策略，再采用正文适配与后续检查。文案可以单独应用到基线。分支提供完整上游历史。
+下面在 Windows 上构建加入修复的 `dsh-v0.2.2-rc.3`。命令检出待审阅提交 `e944ab65`。如需重建实机验收所用的 Web 和桌面构建，可按验收记录检出 `6896be77`。[Windows 验收记录](../verification.md)
 
 ```powershell
 git clone --filter=blob:none --single-branch --branch fix/japanese-product-experience-rc3 https://github.com/Oscar-Williams/deepseek-harness.git dsh-japanese-source
@@ -14,7 +14,7 @@ corepack pnpm run build:check --serial
 
 ## 主窗口的字形选择
 
-将 `DSH_HOME` 指向空的临时目录后，从源码运行 Web。工作区使用测试文件，浏览器独立配置避免借用日常会话。
+从源码启动本地 Web 服务，使用独立的 `DSH_HOME`、测试工作区和浏览器配置。这样会话、字体设置和登录状态都保存在测试目录里。
 
 ```powershell
 $env:DSH_HOME = Join-Path ([IO.Path]::GetTempPath()) ('dsh-ja-' + [guid]::NewGuid().ToString('N'))
@@ -36,9 +36,10 @@ $env:DSH_FONT_CHROMIUM_CHANNEL = 'chrome'
 corepack pnpm exec vitest run --config vitest.web.config.ts apps/web/tests/japanese-fonts.e2e.ts apps/web/tests/regional-fonts.e2e.ts --maxWorkers=1
 corepack pnpm run check:i18n
 corepack pnpm run verify-client-ui-i18n
+corepack pnpm run verify-japanese-experience
 ```
 
-Windows 可在独立目录获取审阅分支并运行 [Windows Web 复现脚本](windows-web-flow.cjs)。脚本由正常 CLI 启动隔离 Host，回环 SSE 返回样例消息，使用已安装的 Edge。脚本记录 Chromium 组合事件、整个输入区的翻译保护、会话渲染、真实 cmd 和切换前后的字体，最后关闭本轮创建的浏览器与 Host。
+下面的脚本通过 CLI 单独启动本地 Web 服务，并用一份新的配置打开已安装的 Edge。样例回复由本机测试服务流式返回。脚本会记录输入组合事件、输入区的翻译属性、会话渲染，以及切换字形前后同一个 Windows cmd 终端的绘制字体。脚本退出时关闭它启动的浏览器窗口和测试服务。[Windows Web 复现脚本](windows-web-flow.cjs)
 
 ```powershell
 $review = Join-Path (Split-Path $PWD.Path -Parent) 'dsh-japanese-review'
@@ -49,11 +50,11 @@ $commit = git rev-parse HEAD
 node (Join-Path $review 'repro/windows-web-flow.cjs') $playwright $PWD.Path $run $commit
 ```
 
-实机组合输入在 Windows 已安装「日语 → 基本输入法 → Microsoft IME」时操作。在输入框聚焦后切换到日本語，点 `A` 切到 `あ`。输入 `nihongo` 且可见 `にほんご`，用空格选词，再按一次 Enter 确认。确认后检查草稿仍在且没有新增消息。继续输入后，明确点发送，查看稿件和回复。浏览器翻译复验只使用样例会话，核对正文与整块输入区。
+要用 Windows Microsoft 日语输入法复验，先聚焦会话输入框，切换到「日本語 Microsoft IME」。如果输入法图标显示 `A`，点它切换到 `あ`。输入 `nihongo`，看到「にほんご」后按空格选择「日本語」，再按一次 Enter。此时「日本語」应留在草稿中，会话消息数应保持原样。继续输入，再点击发送并查看回复。测试 Edge 内置翻译时，使用含英文消息的样例会话，核对该消息译成日文，输入框和工具栏保留原文。
 
 ## 桌面与原生安装器
 
-先正常退出已安装的 DSH App。测试 Desktop 时分别为 `DSH_HOME` 和 `DSH_DESKTOP_USER_DATA_DIR` 指定空目录，再从源码运行 `corepack pnpm run dev:desktop`。窗口语言缓存和 Host 设置均位于候选目录。欢迎、登录等待、普通与强制更新可以使用隔离 IPC 或更新夹具制造相应状态。
+先正常退出已安装的 DSH App。分别为 `DSH_HOME` 和 `DSH_DESKTOP_USER_DATA_DIR` 指定空目录，再运行 `corepack pnpm run dev:desktop`。应用将本地服务设置和窗口语言缓存写入测试目录。欢迎页可以在新配置中直接查看。登录等待和更新窗口可以用独立的 IPC 与更新样例进入对应状态。
 
 Windows 安装器样例需要交互式 Windows x64 桌面，以及项目原有的 MSVC、Windows SDK 和桌面构建依赖。生产 NSIS 配置由 `apps/desktop/scripts/test-windows-installer.mjs` 调用，使用独立测试产品标识和模拟载荷。本次选择日文、简体两种语言，并将侧栏图片指向同次生成的资源目录。下面的临时 runner 复现这两处样例配置，结束后移除临时脚本。
 
@@ -78,4 +79,4 @@ try {
 }
 ```
 
-查看欢迎、路径、安装进度、完成、卸载与重启提示；在 150% 显示缩放下确认“今すぐインストール”完整显示。样例目录由 runner 在结束时输出，原生检查结果见[桌面与安装器记录](../verification.md#桌面与安装器)。签名发布包可在团队既有分发流程中复验同一条路径。
+查看欢迎、路径选择、安装进度、安装完成、卸载与重启提示。在 150% 显示缩放下确认「今すぐインストール」完整显示。脚本结束时会输出样例目录。[桌面与安装器验收结果](../verification.md#桌面与安装器)
