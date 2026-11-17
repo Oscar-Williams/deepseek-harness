@@ -81,18 +81,8 @@ try {
 
 查看欢迎、路径选择、安装进度、安装完成、卸载与重启提示。在 150% 显示缩放下确认「今すぐインストール」完整显示。脚本结束时会输出样例目录。[桌面与安装器验收结果](../verification.md#桌面与安装器)
 
-## 在 GitHub Actions 复验
+## 在 macOS Firefox 复验日文正文
 
-在 fork 的 Actions 页运行 **Japanese font verification**，选择修复分支。也可以通过 GitHub CLI 发起同一个工作流。[工作流入口](https://github.com/Oscar-Williams/deepseek-harness/actions/workflows/japanese-fonts.yml)
+让 DSH 和 Firefox 的首选语言都使用英文，打开含假名和汉字的日文会话。选中消息里的正文段落，在开发者工具的 Fonts 面板查看实际使用的字体。然后把 DSH 界面切到中文，核对同一段落仍使用日文字形。接着在「更多字体设置 → CJK 字形」选择「日文」，检查纯汉字段落和围栏代码的字形。[原始反馈 #9516](https://github.com/deepseek-ai/deepseek-harness/discussions/9516)
 
-```powershell
-gh workflow run japanese-fonts.yml -R Oscar-Williams/deepseek-harness --ref fix/japanese-product-experience-rc3
-```
-
-`macos-latest` 和 `ubuntu-latest` 各自构建 rc.3 修复版，再运行 Playwright Firefox、WebKit 和 Chromium 的字形用例。在同一元素上比较实际绘制与运行器上的日文、简体字体。回放步骤独立检查浏览器里的日语会话和 CLI 的两份录制。
-
-同一提交的 Ubuntu 作业已通过时，可以重试本轮尚未通过的作业。当前运行中，此命令只重新排队 macOS。
-
-```powershell
-gh run rerun 43949736750 -R Oscar-Williams/deepseek-harness --failed
-```
+复验自定义字体时，先用纯汉字段落确认自定义字体的优先级，再用含假名的段落确认日文字体回退。做整段像素对照时，两边使用相同的回退列表。

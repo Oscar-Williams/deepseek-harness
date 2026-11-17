@@ -2,7 +2,7 @@
 
 按界面和插件目录列出 165 处已有文案改动和 7 个新增的设置键。可先核对动作语义，再对照同一个字典键的原文。快捷键、命令参数和动态占位符按原格式保留。
 
-目标状态、待发消息和只读设置的处理原则见[术语参考](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/docs/i18n/japanese-ui-terms.zh.md)。
+目标状态、待发消息和只读设置的处理原则见[术语参考](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/docs/i18n/japanese-ui-terms.zh.md)。
 
 ## 安装、欢迎页与输入区初始改动
 
@@ -25,7 +25,7 @@
 
 ## 会话目标
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-goal/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-goal/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -36,7 +36,7 @@
 
 ## 会话正文与输入区
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-conversation/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-conversation/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -83,7 +83,7 @@
 
 ## 模型选择
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-model-selection/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-model-selection/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -92,7 +92,7 @@
 
 ## 用外部应用打开
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-open-in-app/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-open-in-app/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -100,7 +100,7 @@
 
 ## 权限预设
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-permission-presets/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-permission-presets/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -108,7 +108,7 @@
 
 ## 插件管理
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-plugin-manager/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-plugin-manager/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -117,7 +117,7 @@
 
 ## 插件市场
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-plugin-market/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-plugin-market/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -125,7 +125,7 @@
 
 ## 设置中的运行方式
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-settings-agent-loop/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-settings-agent-loop/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -138,7 +138,7 @@
 
 ## 设置中的 Shell
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-settings-shell/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-settings-shell/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -149,7 +149,7 @@
 
 ## 设置中的子代理
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-settings-subagent/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-settings-subagent/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -160,7 +160,7 @@
 
 ## 设置中的网络搜索
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-settings-web-search/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-settings-web-search/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -172,7 +172,7 @@
 
 ## 设置中的模型配置
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-settings-models/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-settings-models/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -188,7 +188,7 @@
 
 ## 设置中的插件进程
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-settings-plugin-inventory/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-settings-plugin-inventory/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -197,7 +197,7 @@
 
 ## 键盘快捷操作
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-shortcuts/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-shortcuts/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -214,7 +214,7 @@
 
 ## 文件侧栏
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-sidebar-files/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-sidebar-files/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -222,7 +222,7 @@
 
 ## 工作区与会话
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-workspace/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-workspace/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -233,7 +233,7 @@
 
 ## 子代理运行时长
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-subagent/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-subagent/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -241,7 +241,7 @@
 
 ## 外观与字体
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-theme/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-theme/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -252,7 +252,7 @@
 
 ## 多处共用的界面操作（插件目录）
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/locale/src/locales/ja.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/locale/src/locales/ja.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -261,7 +261,7 @@
 
 ## 后台作业
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-jobs/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-jobs/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -271,7 +271,7 @@
 
 ## 设置中的插件
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-settings-plugins/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-settings-plugins/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -280,7 +280,7 @@
 
 ## 会话执行履历
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-trajectory/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-trajectory/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -293,7 +293,7 @@
 
 ## 设置中的子代理（插件目录）
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-settings-subagent/locale/ja.json)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-settings-subagent/locale/ja.json)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -301,7 +301,7 @@
 
 ## 权限预设（插件目录）
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-permission-presets/locale/ja.json)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-permission-presets/locale/ja.json)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -309,7 +309,7 @@
 
 ## 会话正文与输入区（插件目录）
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-conversation/locale/ja.json)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-conversation/locale/ja.json)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -317,7 +317,7 @@
 
 ## 外观与字体（插件目录）
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-theme/locale/ja.json)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-theme/locale/ja.json)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -325,7 +325,7 @@
 
 ## 常规设置
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-settings-general/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-settings-general/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -333,7 +333,7 @@
 
 ## 协作任务板
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-agent-team/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-agent-team/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -344,7 +344,7 @@
 
 ## 会话交付物
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/client/ui-deliverables/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/client/ui-deliverables/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -357,7 +357,7 @@
 
 ## OAR 插件（插件目录）
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/experimental/subagent-oar/locale/ja.json)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/experimental/subagent-oar/locale/ja.json)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -365,7 +365,7 @@
 
 ## Claude Code 子代理插件（插件目录）
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/subagent/subagent-claude-code/locale/ja.json)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/subagent/subagent-claude-code/locale/ja.json)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -373,7 +373,7 @@
 
 ## Codex 子代理插件（插件目录）
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/subagent/subagent-codex/locale/ja.json)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/subagent/subagent-codex/locale/ja.json)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -381,7 +381,7 @@
 
 ## 子代理运行位置（插件目录）
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/subagent/subagent/locale/ja.json)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/subagent/subagent/locale/ja.json)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -389,7 +389,7 @@
 
 ## 子代理委托工具（插件目录）
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/subagent/tool-subagent/locale/ja.json)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/subagent/tool-subagent/locale/ja.json)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -397,7 +397,7 @@
 
 ## 思考内容翻译设置
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/experimental/client-ui-cot-translation/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/experimental/client-ui-cot-translation/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -405,7 +405,7 @@
 
 ## 代码托管面板
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/experimental/client-ui-forge/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/experimental/client-ui-forge/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -415,7 +415,7 @@
 
 ## 调用统计表
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/experimental/client-ui-stats/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/experimental/client-ui-stats/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -424,7 +424,7 @@
 
 ## 语音输入设置
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/experimental/client-ui-voice-input/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/experimental/client-ui-voice-input/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -434,7 +434,7 @@
 
 ## 新会话的工具模式
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/experimental/cua/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/experimental/cua/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -447,7 +447,7 @@
 
 ## 会话检查器
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/experimental/session-inspector/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/experimental/session-inspector/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |
@@ -455,7 +455,7 @@
 
 ## Cordis 查看器
 
-[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/6896be77b03f0fe03e1042600dc1b58d6b51b6b7/packages/extensions/ui-cordis/src/client/locales.ts)
+[字典与所属功能](https://github.com/Oscar-Williams/deepseek-harness/blob/e0e5bdeba6f8790bef937baddcc203a4bc2fca8c/packages/extensions/ui-cordis/src/client/locales.ts)
 
 | 键 | rc.3 原文 | 新文案 | 界面语境 |
 | --- | --- | --- | --- |

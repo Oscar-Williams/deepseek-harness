@@ -14,8 +14,6 @@
 
 上图在同一页面中分别应用官方 rc.3 和修复后的字体规则。Windows 实机还检查了 Chrome 和 Firefox 中实际绘制的字体、Edge 中日语输入法与网页翻译、切换字形时的终端连接，以及独立桌面窗口和原生安装器。[Windows 验收记录](verification.md)
 
-GitHub Actions 补充检查 Chromium、Firefox、WebKit 的字形及录制会话回放。Ubuntu 已通过。macOS 作业三次在排队阶段因 ARM64 运行器容量不足取消，实测待完成。[在线回归记录](verification.md#macos-与-ubuntu-的-ci-回归)
-
 | Windows 日文安装器 | 同批的简体安装器 |
 | --- | --- |
 | ![今すぐインストール完整显示](evidence/installer-ja-welcome.png) | ![简体安装器对照](evidence/installer-zh-welcome.png) |

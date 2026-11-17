@@ -8,6 +8,4 @@ The Japanese terminology pass describes the action or state. An inactive-but-set
 
 The patches apply to the official rc.3 commit `38a6a5c965aa99ab525161efb7cc5cf1fe62fced` and produce the review commit `e0e5bdeba6f8790bef937baddcc203a4bc2fca8c`. The Windows record identifies the builds used for font rendering, the Japanese IME, Edge page translation, isolated Electron startup, and the installer. [Compare with the official rc.3 release](https://github.com/deepseek-ai/deepseek-harness/compare/38a6a5c965aa99ab525161efb7cc5cf1fe62fced...Oscar-Williams:fix/japanese-product-experience-rc3)
 
-The GitHub Actions matrix compares rendered glyphs with installed Japanese and Simplified Chinese faces, including Japanese prose in Firefox with English interface and browser preferences. Ubuntu passed in Firefox, WebKit and Chromium, along with the Web and CLI recorded-session replays. The macOS checks remain outstanding after GitHub canceled three queued attempts because of hosted ARM64 capacity. [CI results](verification.md#macos-与-ubuntu-的-ci-回归)
-
-[Verification matrix](verification.md) · [Japanese copy review](ja-copy-review.md) · [Reproduction and integration](repro/README.md)
+[Validation record](verification.md) · [Japanese copy review](ja-copy-review.md) · [Reproduction and integration](repro/README.md)
